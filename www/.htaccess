@@ -1,0 +1,3 @@
+RewriteEngine On
+
+RewriteRule ^([^/\.]+)\.php$ index.php?_request_page=$1 [QSA]
