@@ -5,11 +5,14 @@ require 'require.php';
 require 'output.php';
 require 'pageobj.php';
 require 'nopage.php';
+require 'validation.php';
 
 class RequestHandler{
 	private $_request = null;
 	private $_sqlCon = null;
 	private $_user = null;
+	
+	public $pageFunctionObject;
 	
 	/** Contructor
 	 ** Optional arguments: string Request, PDO SQL connection
@@ -22,12 +25,13 @@ class RequestHandler{
 			}
 			elseif(is_object($arg)){
 				$class = get_class($arg);
-				if($class == 'PDO'){
+				if($class == 'DBController'){
 					$this->_sqlCon = $arg;
 				}
 			}
 		}
 		//$this->_user = new User();
+		$this->pageFunctionObject = null;
 	}
 	
 	/** Set the request **/
@@ -64,24 +68,29 @@ class RequestHandler{
 		else{
 			if($requestedScript !== false){
 				require $requestedScript; //Bring in the script that will perform the server side operations for the requested page
-				if(!$this->validRequestClass()){ //Make sure we have a valid page handler. 
+				/*if(!$this->validRequestClass()){ //Make sure we have a valid page handler. 
 					$this->unexpectedError();
+				}*/
+				$requestClass = $this->getPageFunctionClass(REQUEST_CLASS_PARENT);
+				if($requestClass === false){
+					$this->unexpectedError('Unable to find a class to handle this request!');
+					return;
 				}
 				
-				$requestClass = REQUEST_CLASS;
-				$requestHandler = new $requestClass($this->_sqlCon,$this->_user); //Instantiate our page handling object
+				//$requestClass = REQUEST_CLASS;
+				$this->pageFunctionObject = new $requestClass($this->_sqlCon,$this->_user); //Instantiate our page handling object
 				
 				$this->interalPreExecute(); //Call the global RequestHandler pre-execution function. Take care of anything that should happen before the page begins loading. 
-				call_user_func(array($requestHandler,REQUEST_FUNC_PRE_EXECUTE)); //Call the page specific pre-execution function. 
+				call_user_func(array($this->pageFunctionObject,REQUEST_FUNC_PRE_EXECUTE)); //Call the page specific pre-execution function. 
 				
 				if($requestedTemplate !== false){ //If we have a template file, import that.
-					$this->includePageFile($requestedTemplate,$requestHandler);
+					$this->includePageFile($requestedTemplate,$this->pageFunctionObject);
 				}
 				
-				call_user_func(array($requestHandler,REQUEST_FUNC_POST_EXECUTE)); //Page specific post-execution function. 
+				call_user_func(array($this->pageFunctionObject,REQUEST_FUNC_POST_EXECUTE)); //Page specific post-execution function. 
 				
-				$outputData = call_user_func(array($requestHandler, REQUEST_FUNC_RET_DATA));
-				$outputStatus = call_user_func(array($requestHandler, REQUEST_FUNC_RET_STATUS));
+				$outputData = call_user_func(array($this->pageFunctionObject, REQUEST_FUNC_RET_DATA));
+				$outputStatus = call_user_func(array($this->pageFunctionObject, REQUEST_FUNC_RET_STATUS));
 				
 				$this->handleOutput($outputStatus,$outputData);
 			}
@@ -92,14 +101,44 @@ class RequestHandler{
 			}
 		}
 	}
-	private function validRequestClass(){
+	/*private function validRequestClass(){
 		if(!class_exists(REQUEST_CLASS)){
 			return false;
 		}
 		return true;
+	}*/
+	
+	/*
+	 * Finds the name of a class that is a descendent of $parentClass. 
+	 * This searches the list of currently declared classes, and finds any that are
+	 * chidren of $parentClass. Currently, if more than one is found, it will return
+	 * the first one found. 
+	 * Returns the name of the class, or false is none are found.
+	 */
+	private function getPageFunctionClass($parentClass){
+		$classes = get_declared_classes();
+		$children = array();
+		$parent = new ReflectionClass($parentClass); //A class that reports information about a class
+		
+		foreach ($classes AS $class){
+			$current = new ReflectionClass($class);
+			if ($current->isSubclassOf($parent)){
+				$children[] = $current;
+			}
+		}
+		
+		if(count($children) < 0){
+			debug("No class was found that is a subclass of {$parentClass}!");
+			return false;
+		}
+		if(count($children) > 1){
+			debug("More than one descendent of {$parentClass} found!");
+			debug('Dumping list of children:<br />'.print_r($children,true));
+			debug('Using first child found: '.$children[0]->name.'.');
+		}
+		return $children[0]->name;
 	}
 	
-
 	private function interalPreExecute(){
 		OutputHandler::preExecute();
 	}
@@ -108,8 +147,8 @@ class RequestHandler{
 		OutputHandler::handleOutput($status,$data);
 	}
 	
-	private function unexpectedError(){
-		$this->handleOutput(500);
+	private function unexpectedError($data = null){
+		$this->handleOutput(500,$data);
 	}
 	
 	private function includePageFile($file, $templateRequestHandler){
@@ -118,6 +157,15 @@ class RequestHandler{
 		include $file; //Execution of the template begins. 
 	}
 	
+	public function pageTitle(){
+		if($this->pageFunctionObject != null){
+			if(method_exists($this->pageFunctionObject,'pageTitle')){
+				$this->pageFunctionObject->pageTitle();
+				return;
+			}
+		}
+		echo SITE_NAME;
+	}
 	public function includeFile($file){
 		$path = INCLUDE_PATH_PAGE_INCLUDE . $file;
 		if(file_exists($path)){

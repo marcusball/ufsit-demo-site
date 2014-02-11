@@ -7,16 +7,22 @@ set_include_path(get_include_path() . PATH_SEPARATOR . $path); //Adds the './inc
 // That doesn't explain much, but basically, if I say "include 'file.php';", 
 // it now searches './include' for file.php, as well as the default include locations.
 
+require_once 'databasecontroller.php';
+
 
 function logError($script,$line,$description, $error){
 	$data = "File:        $script (Line: $line)\nDescription: ".$description."\nError:       ".$error."\nTime:        ".date('l, j F Y, \a\t g:i:s:u A')."\n--------------------------------\n";
 	file_put_contents(LOG_PATH_ERRORS, $data, FILE_APPEND);
 }
 
+function debug($message){
+	echo $message . '<br />';
+}
+
 function SQLConnect(){
 	try {
-		$SQLCON = new PDO(DB_PDO_NAME.':host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-		$SQLCON->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		$SQLCON = new DBController(DB_PDO_NAME.':host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
+		$SQLCON->setPDOAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		return $SQLCON;
 	}
 	catch(PDOException $e){

@@ -11,7 +11,7 @@ define('SERVER_INI_FILE','server/config.ini');
 /****************************************************************/
 
 //The extension for the php files that will be included
-define('INCLUDE_PHP_EXTENSION','.php');
+define('INCLUDE_PHP_EXTENSION','.func.php');
 //The path to the php include files for each requested page
 define('INCLUDE_PATH_PHP','page-functions/');
 //The extension for the php template files that will be included
@@ -47,6 +47,7 @@ define('INPUT_EMAIL_MIN_LENGTH',6); // a@b.cd
 define('INPUT_PASSWORD_MAX_LENGTH',255);
 define('INPUT_PASSWORD_MIN_LENGTH',8);
 
+define('AUTH_HASH_COMPLEXITY',14);
 /****************************************************************/
 /** The config definitions below here should NOT be modified!  **/
 /** Unless you really know what you're doing, and are prepared **/
@@ -56,7 +57,7 @@ define('INPUT_PASSWORD_MIN_LENGTH',8);
 
 
 //Define the name of the class that will enclose any script that handles a request
-define('REQUEST_CLASS','Page');
+define('REQUEST_CLASS_PARENT','PageObject');
 define('REQUEST_FUNC_GET_TEMPLATE','getTemplate');
 define('REQUEST_FUNC_PRE_EXECUTE','preExecute');
 define('REQUEST_FUNC_POST_EXECUTE','postExecute');
