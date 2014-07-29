@@ -153,7 +153,7 @@ function parsePath($withQueryArgs = true){
 	$uri = '/' . trim( str_replace( $uri, '', $_SERVER['REQUEST_URI'] ), '/' );
 	$uri = urldecode( $uri );
 	if(!$withQueryArgs){
-		$matchVal = preg_match('#^(?\'path\'[^\?]*)(?:\?.*)?$#i',$path,$matches);
+		$matchVal = preg_match('#^(?\'path\'[^\?]*)(?:\?.*)?$#i',$uri,$matches);
 		if($matchVal !== 0 && $matchVal !== false){
 			return $matches['path'];
 		}
@@ -164,11 +164,21 @@ function parsePath($withQueryArgs = true){
 function cleanPath($path){
 	if($path == '/') return $path;
 	
-	$matchVal = preg_match('#^/?(?\'path\'[^\.]+)\.php(?:\?.*)?$#i',$path,$matches);
+	$matchVal = preg_match('#^/?(?:(?\'path\'.+)\.php)?(?:\?.*)?$#i',$path,$matches);
 	if($matchVal === 0 || $matchVal === false){
 		return false;
 	}
-	return $matches['path'];
+	
+	//If we get to here, we know the pattern matches
+	//If path is not set, then nothing exists between the first character ('/'), and the query string ('?...')
+	//So, if we have a path returned from the regex, then the url is something like "/xxxxx.php?ffffff"
+	//Otherwise the path is "/?ffffff". 
+	if(isset($matches['path'])){
+		return $matches['path'];
+	}
+	else{
+		return '/';
+	}
 }
 
 function getRewritePath($path){
