@@ -1,22 +1,19 @@
-<!DOCTYPE html>
-<html>
-	<head>
-		<title><?php $Page->pageTitle(); ?></title>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-		<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-		<link rel="icon" href="/favicon.ico" type="image/ico" />
-		<link rel="stylesheet" type="text/css" href="/res/styles/main.css" />
-	</head>
-	<body>
+<?php 
+/*
+ * The GlobalPage variable is available to any template file. It references the RequestHandler object in index.php.
+ * You can use includeFile($filename), to include files from the /page-include/ folder. 
+ * This is useful for including things like headers and footers. 
+ */
+$GlobalPage->includeFile('header.php'); ?>
 		<div id="container">
 			<header>
 				<div id="logo">
-					<h1>Pirrs</h1>
+					<h1>Template</h1>
 				</div>
 				<nav>
 					<ul>
 						<li><a href="/">Home</a></li>
-						<li><a href="#">Buttes</a></li>
+						<li><a href="#">Some link</a></li>
 					</ul>
 				</nav>
 			</header>
@@ -24,5 +21,4 @@
 				<?php $Page->createBody(); ?>
 			</div>
 		</div>
-	</body>
-</html>
+<?php $GlobalPage->includeFile('footer.php'); ?> 
