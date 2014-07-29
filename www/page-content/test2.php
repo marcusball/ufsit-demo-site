@@ -1,7 +1,7 @@
 <!DOCTYPE html5>
 <html>
 	<head>
-		<title>V</title>
+		<title>A page with errors!</title>
 	</head>
 	<body>
 		<h1>This is still a functional page!</h1>

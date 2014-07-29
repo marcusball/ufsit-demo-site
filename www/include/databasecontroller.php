@@ -274,6 +274,5 @@ class DBController{
 	public function getLastErrorCode(){
 		return $this->sqlCon->errorCode();
 	}
-	
 }
 ?>

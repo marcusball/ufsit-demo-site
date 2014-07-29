@@ -17,15 +17,6 @@ class RequestHandler{
 	public function __construct(){
 		for($i=0;$i<func_num_args();$i++){
 			$arg = func_get_arg($i);
-			/*if(is_string($arg)){
-				$this->_request = $arg;
-			}*/
-			/*elseif(is_object($arg)){
-				$class = get_class($arg);
-				if($class == 'DBController'){
-					$this->dbCon = $arg;
-				}
-			}*/
 		}
 		$this->dbCon = getDatabaseController();
 		$this->user = getCurrentUser();
@@ -97,10 +88,9 @@ class RequestHandler{
 					if($requestedTemplate !== false){ //If we have a template file, import that.
 						$this->includePageFile($requestedTemplate,$this->pageFunctionObject);
 					}
-					
 				}
 				call_user_func(array($this->pageFunctionObject,REQUEST_FUNC_POST_EXECUTE)); //Page specific post-execution function. 
-				
+
 				$outputData = call_user_func(array($this->pageFunctionObject, REQUEST_FUNC_RET_DATA));
 				$outputStatus = call_user_func(array($this->pageFunctionObject, REQUEST_FUNC_RET_STATUS));
 				
@@ -120,7 +110,7 @@ class RequestHandler{
 		$templateReferenceVar = new NoPage(); //This is essentially to make error reporting obvious. If the template without an associated php file tries to call functions as though there is a php file for it, this will output some nice helpful errors. 
 		$this->includePageFile($requestedTemplate,$templateReferenceVar);
 	}
-	
+
 	/*
 	 * Finds the name of a class that is a descendent of $parentClass. 
 	 * This searches the list of currently declared classes, and finds any that are
@@ -144,11 +134,6 @@ class RequestHandler{
 			//debug("No class was found that is a subclass of {$parentClass}!");
 			logWarning("No class was found that is a subclass of {$parentClass}!");
 			return false;
-		}
-		if(count($children) > 1){
-			debug("More than one descendent of {$parentClass} found!");
-			debug('Dumping list of children:<br />'.print_r($children,true));
-			debug('Using first child found: '.$children[0]->name.'.');
 		}
 		return $children[0]->name;
 	}
@@ -187,7 +172,7 @@ class RequestHandler{
 		}
 		echo SITE_NAME;
 	}
-	
+
 	/*
 	 * Includes a page from the /page-include/ directory.
 	 */

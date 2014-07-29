@@ -1,7 +1,7 @@
 <?php
-class Page extends PageObject{
+class IndexPage extends PageObject{
 	public function pageTitle(){
-		echo 'Welcome to '.SITE_NAME.'!';
+		echo "Welcome to the template home page!";
 	}
 	
 	public function createBody(){?>

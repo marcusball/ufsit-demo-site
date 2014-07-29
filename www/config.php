@@ -62,7 +62,6 @@ define('INPUT_PASSWORD_MAX_LENGTH',255);
 define('INPUT_PASSWORD_MIN_LENGTH',8);
 
 define('AUTH_HASH_COMPLEXITY',14);
-
 /****************************************************************/
 /** The config definitions below here should NOT be modified!  **/
 /** Unless you really know what you're doing, and are prepared **/
