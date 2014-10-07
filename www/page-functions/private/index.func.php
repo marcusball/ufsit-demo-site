@@ -3,20 +3,26 @@ class PrivateIndex extends PageObject{
 	private $realm = 'Super secret area';
 	private $secret = 'Is this necessary? Probably not.';
 	private $users = array('guest' => 'guest');
+	
+	public function pageTitle(){ echo '[PRIVATE]'; }
+	
 	public function preExecute(){
 		if(!$this->user->isLoggedIn()){
+			//If the user is logged out, but we're still getting the logout request,
+			//then we should redirect the user to the normal, non-logout page.
 			if($this->issetReq('logout')){
 				header('Location: '.getCurrentUrl(false));
 				return false;
 			}
 			
-			
+			//Did the user land here without any auth information?
 			if(empty($_SERVER['PHP_AUTH_DIGEST'])){
 				$this->httpDigestPrompt();
 
 				echo 'Wow, you don\'t belong here. Be gone!';
 				return false;
 			}
+			//Is something wrong with the auth data, or does the username not exist?
 			elseif(!($data = $this->httpDigestParse($_SERVER['PHP_AUTH_DIGEST'])) || !isset($this->users[$data['username']])){
 				$this->httpDigestPrompt();
 			
@@ -40,6 +46,7 @@ class PrivateIndex extends PageObject{
 			}
 		}
 		else{
+			//Is the user logged in, but requesting to logout?
 			if($this->issetReq('logout')){
 				$this->user->logOut();
 				
