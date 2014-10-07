@@ -1,0 +1,5 @@
+[error][Tue, 7 Oct 2014, at 2:26:15 PM][127.0.0.1] (C:\Users\marcus\Git\ufsit\www\require.php:101): Could not select database (my_database). SQLSTATE[08006] [7] FATAL:  password authentication failed for user "user"
+[error][Tue, 7 Oct 2014, at 2:26:15 PM][127.0.0.1] (C:\Users\marcus\Git\ufsit\www\require.php:101): Could not select database (my_database). SQLSTATE[08006] [7] FATAL:  password authentication failed for user "user"
+[error][Tue, 7 Oct 2014, at 2:26:15 PM][127.0.0.1] (C:\Users\marcus\Git\ufsit\www\require.php:101): Could not select database (my_database). SQLSTATE[08006] [7] FATAL:  password authentication failed for user "user"
+[error][Tue, 7 Oct 2014, at 2:26:15 PM][127.0.0.1] (C:\Users\marcus\Git\ufsit\www\require.php:101): Could not select database (my_database). SQLSTATE[08006] [7] FATAL:  password authentication failed for user "user"
+[error][Tue, 7 Oct 2014, at 2:26:15 PM][127.0.0.1] (C:\Users\marcus\Git\ufsit\www\require.php:101): Could not select database (my_database). SQLSTATE[08006] [7] FATAL:  password authentication failed for user "user"

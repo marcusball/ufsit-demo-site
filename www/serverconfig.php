@@ -1,10 +1,10 @@
 <?php
-define('IS_PRODUCTION',false);
+define('IS_PRODUCTION',true);
 
-define('SITE_LABEL','template');
-define('SITE_NAME','Template');
-define('SITE_DOMAIN_TOP','template.local'); //The highest level of the domain of this site. (No subdomains).
-define('SITE_DOMAIN','www.'.SITE_DOMAIN_TOP); //Primary (sub)domain of this website (www.example.com / example.com).
+define('SITE_LABEL','ufsit-hacksite');
+define('SITE_NAME','UFSIT - Hack My Site');
+define('SITE_DOMAIN_TOP','arbitrary.website'); //The highest level of the domain of this site. (No subdomains).
+define('SITE_DOMAIN','some.'.SITE_DOMAIN_TOP); //Primary (sub)domain of this website (www.example.com / example.com).
 define('DB_PDO_NAME','pgsql'); // The PDO name for your database server
 define('DB_NAME', 'my_database');
 define('DB_USER', 'user');
