@@ -204,7 +204,7 @@ class RequestHandler{
 	 * Returns true if the path given matches a directory, and that directory contains an index file. Otherwise, false.
 	 */
 	public static function hasDirectoryIndex($path){
-		if(substr($path,0,1) == '/'){ $path = substr($path,1); } //Remove the preceeding slash
+		if(substr($path,0,1) == '/'){ $path = substr($path,1); } //Remove the preceding slash
 
 		$phpDir = INCLUDE_PATH_PHP.$path;
 		$pageDir = INCLUDE_PATH_TEMPLATE.$path;
@@ -218,6 +218,19 @@ class RequestHandler{
 			return $hasPhp || $hasTemplate;
 		}
 		return false;
+	}
+	
+	public static function isNonExecutableFile($path){
+		if(substr($path,0,1) == '/'){ $path = substr($path,1); } //Remove the preceding slash
+		
+		$file = INCLUDE_PATH_TEMPLATE.$path;
+		return is_file($file) && file_exists($file);
+	}
+	public static function readFile($path){
+		if(substr($path,0,1) == '/'){ $path = substr($path,1); } //Remove the preceding slash
+		
+		$file = INCLUDE_PATH_TEMPLATE.$path;
+		readfile($file);
 	}
 }
 
@@ -236,6 +249,9 @@ $request = cleanPath($path);
 if($request === false){
 	if(RequestHandler::hasDirectoryIndex($path)){
 		$request = cleanPath($path . '/index.php');
+	}
+	elseif(RequestHandler::isNonExecutableFile($path)){
+		RequestHandler::readFile($path);
 	}
 	else{
 		OutputHandler::handleOutput(404);

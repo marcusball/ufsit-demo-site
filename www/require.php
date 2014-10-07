@@ -195,8 +195,8 @@ function getRewritePath($path){
 	return false;
 }
 
-function getCurrentUrl(){
-	return parsePath();
+function getCurrentUrl($withQueryArgs = true){
+	return parsePath($withQueryArgs);
 }
 
 

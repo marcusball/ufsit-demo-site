@@ -6,7 +6,7 @@ class PrivateIndex extends PageObject{
 	public function preExecute(){
 		if(!$this->user->isLoggedIn()){
 			if($this->issetReq('logout')){
-				header('Location: '.parsePath(false));
+				header('Location: '.getCurrentUrl(false));
 				return false;
 			}
 			
