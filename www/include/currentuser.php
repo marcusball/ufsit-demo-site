@@ -33,10 +33,10 @@ class CurrentUser extends User{
 			return false;
 		}
 		
-		if(!$this->isValidUser($_SESSION['USER_ID'])){
+		/*if(!$this->isValidUser($_SESSION['USER_ID'])){
 			$this->cleanSessionData();
 			return false;
-		}
+		}*/
 		
 		$this->setClassCredentials($_SESSION['USER_ID']);
 		return true;
@@ -67,11 +67,13 @@ class CurrentUser extends User{
 		$_SESSION['USER_ID'] = $uid;
 		$_SESSION['LAST_USE'] = time();
 		$this->setClassCredentials($uid);
+		
+		$this->checkAuthentication();
 	}
 	
 	private function setClassCredentials($uid){
 		$this->uid = $uid;
-		$this->getUserInformation();
+		//$this->getUserInformation();
 	}
 	
 	private function cleanSessionData(){

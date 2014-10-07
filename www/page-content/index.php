@@ -8,12 +8,12 @@ $GlobalPage->includeFile('header.php'); ?>
 		<div id="container">
 			<header>
 				<div id="logo">
-					<h1>Template</h1>
+					<h1>A website</h1>
 				</div>
 				<nav>
 					<ul>
 						<li><a href="/">Home</a></li>
-						<li><a href="#">Some link</a></li>
+						<li><a href="/private/">Secret Stuff</a></li>
 					</ul>
 				</nav>
 			</header>

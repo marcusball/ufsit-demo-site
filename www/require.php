@@ -156,6 +156,7 @@ function parsePath($withQueryArgs = true){
 	$uri = urldecode( $uri );
 	if(!$withQueryArgs){
 		$matchVal = preg_match('#^(?\'path\'[^\?]*)(?:\?.*)?$#i',$uri,$matches);
+
 		if($matchVal !== 0 && $matchVal !== false){
 			return $matches['path'];
 		}

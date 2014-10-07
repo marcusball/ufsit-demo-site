@@ -70,7 +70,13 @@ class RequestHandler{
 
 			$requestClass = $this->getPageFunctionClass(REQUEST_CLASS_PARENT); //Get the name of the class that corresponds to the class within $requestedScript. 
 			if($requestClass === false){ //If no such class exists, then we'll fall back to using just the template page. 
-				$this->executeWithoutPage($requestedTemplate); //Instead of dying, let's just display the template. 
+				if($requestedTemplate !== false){
+					$this->executeWithoutPage($requestedTemplate); //Instead of dying, let's just display the template. 
+				}
+				else{
+					//We don't have a PageObject, and we don't have a template, but the [page].func.php file exists.
+					//We've included it, so hopefully it will do something. There's nothing else we can do at this point.
+				}
 				return;
 			}
 
@@ -192,10 +198,31 @@ class RequestHandler{
 	public function setRequestArgs($args){
 		$this->reqArgs = $args;
 	}
+	
+	/*
+	 * Test if a given path is to a directory within the website, and if so, try to find an index file.
+	 * Returns true if the path given matches a directory, and that directory contains an index file. Otherwise, false.
+	 */
+	public static function hasDirectoryIndex($path){
+		if(substr($path,0,1) == '/'){ $path = substr($path,1); } //Remove the preceeding slash
+
+		$phpDir = INCLUDE_PATH_PHP.$path;
+		$pageDir = INCLUDE_PATH_TEMPLATE.$path;
+
+		if(is_dir($phpDir) || is_dir($pageDir)){
+			$includeFile = $phpDir.'/index'.INCLUDE_PHP_EXTENSION;
+			$templateFile = $pageDir.'./index'.INCLUDE_TEMPLATE_EXTENSION;
+			
+			$hasPhp = file_exists($includeFile);
+			$hasTemplate = file_exists($templateFile);
+			return $hasPhp || $hasTemplate;
+		}
+		return false;
+	}
 }
 
 //Just remember that, internally "bla.com/" will still be considered "bla.com/index.php" when checking the rewrite condition. 
-$path = parsePath();
+$path = parsePath(false);
 $requestArgs = array();
 
 if(($rewrite = getRewritePath($path)) !== false){ //If this requested URL is being handled as a rewrite page
@@ -205,10 +232,17 @@ if(($rewrite = getRewritePath($path)) !== false){ //If this requested URL is bei
 	$requestArgs = array_merge($requestArgs,$groups);
 }
 $request = cleanPath($path);
+
 if($request === false){
-	OutputHandler::handleOutput(404);
+	if(RequestHandler::hasDirectoryIndex($path)){
+		$request = cleanPath($path . '/index.php');
+	}
+	else{
+		OutputHandler::handleOutput(404);
+	}
 }
-else{
+
+if($request !== false){
 	if($request == '/'){ $request = cleanPath('index.php'); }
 
 	$Handler = new RequestHandler();
