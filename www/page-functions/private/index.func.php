@@ -5,7 +5,8 @@ class PrivateIndex extends PageObject{
 	private $users = array(
 		'guest' => 'puppydog',
 		'winnfield' => 'Correctamundo',
-		'bender' => 'Killhumans'
+		'bender' => 'Killhumans',
+		'admin' => 'May0nnaise'
 	);
 	
 	public function pageTitle(){ echo '[PRIVATE]'; }
