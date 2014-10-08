@@ -40,7 +40,7 @@ $GlobalPage->includeFile('header.php'); ?>
 
 							</div>
 							<div class="large-6 columns">
-								<img src="/res/images/Samuel-L-Jackson.jpg"/>
+								<a href="/users/winnfield.html"><img src="/res/images/Samuel-L-Jackson.jpg"/></a>
 							</div>
 						</div>
 
