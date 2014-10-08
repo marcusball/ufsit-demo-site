@@ -29,7 +29,7 @@ $GlobalPage->includeFile('header.php'); ?>
 					<hr/>
 
 					<article>
-						<h3><a href="#">Blog Post Title</a></h3>
+						<h3><a href="#">The Diner</a></h3>
 						<h6>Written by <a href="#winnfield">Jules Winnfield</a> on October 5, 2014.</h6>
 
 						<div class="row">

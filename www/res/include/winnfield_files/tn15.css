@@ -1,0 +1,694 @@
+#tn15 {
+  font: 13px Arial,Helvetica,sans-serif;
+  margin-left: 25px;
+  margin-right: 25px;
+  *font-size: small;
+  *font: x-small;
+}
+#tn15 td {
+  font:13px Arial,Helvetica,sans-serif !important;
+}
+#tn15 h1, #tn15 h2, #tn15 h3, #tn15 h4, #tn15 select, #tn15 .small { 
+  font-family: Arial, Helvetica, sans-serif;
+}
+#tn15main li { 
+  margin-bottom: 0;
+}
+#tn15 .headerinline {
+  margin-top: 0px;
+  margin-bottom: 6px;
+}
+#tn15 .headerinline h3 {
+  display: inline;
+}
+#tn15 .headerinline span {
+  padding-left: 0px;
+  vertical-align: 10%;
+}
+#tn15crumbs { 
+  padding-top: 2px;
+  font-size: 77%;
+  margin-right: 215px;
+}
+#tn15dupe { 
+  position: relative;
+  padding: 4px;
+  float:right;
+  font-size: 77%;
+}
+#tn15lhs { 
+  float: left;
+  width: 115px;
+  margin-top: 13px;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+#tn15lhs h6 {
+  color: #243757;
+  font-weight: bold;
+  font-size: 12px;
+  border-style: dotted;
+  border-width: 0px 0px 1px 0px;
+  margin-top: 13px;
+  margin-bottom: 4px;
+}
+#tn15lhs a.link { 
+  font-size: 12px;
+  line-height: 126%;
+  padding-left: 0.6em;
+  display: block;
+  background: url(/images/SFe0968c3314d7f332aad76e1ce1886d7d/tn15/dash.gif) no-repeat 0% .6em;
+}
+#tn15lhs a.link.selected { 
+  background: #917b5f url(/images/SF4c916b016f582da1b576a87feb857095/tn15/lhs_selected_bgd.png);
+}
+#tn15lhs a.link.selected, #tn15lhs a.link.selected:visited { 
+  color: #fff;
+  font-weight: normal;
+}
+#tn15lhs a.link.empty { 
+  color: #b7b7b7;
+  text-decoration: none;
+}
+#tn15lhs form { 
+  display: inline;
+  margin: 0;
+}
+#tn15lhs select { 
+  font-size: 85%;
+  width: 115px;
+  border: 1px solid #b7b7b7;
+}
+#tn15lhs .photo { 
+  background: transparent url(/images/SF1933a673dc866f39341d626891d33336/wheel/fafafa.png) repeat;
+  border: 1px solid #999;
+  text-align: center;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  margin-bottom: 4px;
+  width: auto;
+}
+#tn15lhs .photo .button { 
+  border: 0;
+  border-bottom: 1px solid #003399;
+}
+#tn15lhs .photo a.link {
+  background: none;
+  padding-left: 0px;
+} 
+#tn15title { 
+  margin: 8px 8px 0px 0px;
+  position: static;
+}
+#tn15title h1 { 
+  font-size: 30px;
+  letter-spacing:-1px;
+  font-weight: bold;
+  margin: 0;
+  line-height: 99%;
+}
+#tn15title h1 a.main, #tn15title h1 a.main:visited { 
+  color: #000;
+  text-decoration: none;
+}
+#tn15title small {
+font-size:16px;
+font-weight:normal;
+letter-spacing:normal;
+line-height:106%;
+}
+#tn15title span { 
+  font-size: 16px;
+  font-weight: normal;
+  line-height: 109%;
+}
+#tn15title span.title-extra { 
+  font-size: 17px;
+  color: #999;
+  font-style: normal;
+  line-height: 85%;
+  display: block;
+  padding-top: 3px;
+}
+#tn15title span.title-extra span.tv-extra { 
+  font-size: 17px;
+  color: #999;
+  font-style: normal;
+  line-height: 85%;
+  display: inline;
+  padding-top: 3px;
+  white-space: nowrap;
+}
+#tn15title span.pro-link {
+  font-size:14px;
+  font-weight:normal;
+  padding-left:.25em;
+}
+#tn15content .pro-ad td {
+    font-size:12px !important;
+}
+#tn15content p {
+    line-height:131%;
+}
+#tn15content .pro-ad table {
+border-color:#CCCCCC;
+border-style:dotted none;
+border-width:1px medium;
+margin:-1.25em 0 1em;
+padding:4px 0;
+}
+#tn15title em { 
+  color: #000;
+  font-style: normal;
+}
+#tn15epnav { 
+  font-size: 85%;
+}
+
+#tn15shopbox { 
+  position: absolute;
+  right: 29px;
+  width: 222px;
+  height: 54px;
+  background: url(/images/SF90af760e34c773fde126ae59a6580561/tn15/shop_background.gif) repeat-x 0px -54px;
+}
+#tn15shopbox .edge {
+  width: 8px;
+  height: 54px;
+  background: url(/images/SF90af760e34c773fde126ae59a6580561/tn15/shop_background.gif) no-repeat;
+}
+#tn15shopbox .edge.left { 
+  float: left;
+  background-position: 0px 0px;
+}
+#tn15shopbox .edge.right { 
+  float: right;
+  background-position: -8px 0px;
+}
+#tn15shopbox .label {
+  padding-left: 10px; 
+  padding-top: 4px; 
+  width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  font-weight: bold;
+  font-size: 85%;
+}
+
+#tn15shopbox .stores {
+  position: absolute;
+  top: 5px;
+  left: 132px;
+}
+
+#tn15shopbox .stores a { 
+  display: block;
+  position: absolute;
+  height: 21px;
+  overflow: hidden;
+  background: url(/images/SF51da75c331c5e8a7768f0b034ae56df0/tn15/shop_buttons.gif) no-repeat;
+}
+
+#tn15shopbox    .stores a b { display: none; }
+
+#tn15shopbox    .stores div { display: none;  } 
+#tn15shopbox.us .stores .us { display: block; }
+#tn15shopbox.ca .stores .ca { display: block; }
+#tn15shopbox.uk .stores .uk { display: block; }
+#tn15shopbox.de .stores .de { display: block; }
+#tn15shopbox.fr .stores .fr { display: block; }
+
+#tn15shopbox .stores a.digital             { left:  0px; top:  0px; width: 53px; }
+#tn15shopbox .stores a.rent                { left:  0px; top:  0px; width: 53px; }
+#tn15shopbox .stores a.all                 { left: 56px; top:  0px; width: 25px; }
+#tn15shopbox .stores a.dvd                 { left:  0px; top: 24px; width: 25px; }
+#tn15shopbox .stores a.vhs                 { left: 28px; top: 24px; width: 25px; }
+#tn15shopbox .stores a.soundtrack          { left: 56px; top: 24px; width: 25px; }
+
+#tn15shopbox .stores a.digital             { background-position: -100px -42px; }
+#tn15shopbox .stores a.rent                { background-position: -153px -42px; }
+#tn15shopbox .stores a.dvd                 { background-position:    0px -42px; }
+#tn15shopbox .stores a.vhs                 { background-position:  -25px -42px; }
+#tn15shopbox .stores a.soundtrack          { background-position:  -50px -42px; }
+#tn15shopbox .stores a.all                 { background-position:  -75px -42px; }
+
+#tn15shopbox .stores a.digitalon           { background-position: -100px   0px; }
+#tn15shopbox .stores a.renton              { background-position: -153px   0px; }
+#tn15shopbox .stores a.dvdon               { background-position:    0px   0px; }
+#tn15shopbox .stores a.vhson               { background-position:  -25px   0px; }
+#tn15shopbox .stores a.soundtrackon        { background-position:  -50px   0px; }
+#tn15shopbox .stores a.allon               { background-position:  -75px   0px; }
+
+#tn15shopbox .stores a.digitalon:hover     { background-position: -100px -21px; }
+#tn15shopbox .stores a.renton:hover        { background-position: -153px -21px; }
+#tn15shopbox .stores a.dvdon:hover         { background-position:    0px -21px; }
+#tn15shopbox .stores a.vhson:hover         { background-position:  -25px -21px; }
+#tn15shopbox .stores a.soundtrackon:hover  { background-position:  -50px -21px; }
+#tn15shopbox .stores a.allon:hover         { background-position:  -75px -21px; }
+
+#tn15shopbox .flags { 
+  position: absolute;
+  left: 37px;
+  top: 40px;
+  width: 90px;
+}
+
+#tn15shopbox .flags a { 
+  position: absolute;
+  display: block;
+  width: 17px;
+  height: 11px;
+  overflow: hidden;
+  background: url(/images/SF0c92708ea58b56dfaf368113529d20d7/tn15/shop_flags.gif) no-repeat;
+}
+
+#tn15shopbox .flags a b { display: none; }
+
+#tn15shopbox    .flags .us       { background-position:   0px 0px; left:  0px; }
+#tn15shopbox    .flags .ca       { background-position: -17px 0px; left: 18px; }
+#tn15shopbox    .flags .uk       { background-position: -34px 0px; left: 36px; }
+#tn15shopbox    .flags .de       { background-position: -51px 0px; left: 54px; }
+#tn15shopbox    .flags .fr       { background-position: -68px 0px; left: 72px; }
+
+#tn15shopbox.us .flags .us       { background-position:   0px -11px; }
+#tn15shopbox.ca .flags .ca       { background-position: -17px -11px; }
+#tn15shopbox.uk .flags .uk       { background-position: -34px -11px; }
+#tn15shopbox.de .flags .de       { background-position: -51px -11px; }
+#tn15shopbox.fr .flags .fr       { background-position: -68px -11px; }
+
+#tn15shopbox    .flags .us:hover { background-position:   0px -11px; }
+#tn15shopbox    .flags .ca:hover { background-position: -17px -11px; }
+#tn15shopbox    .flags .uk:hover { background-position: -34px -11px; }
+#tn15shopbox    .flags .de:hover { background-position: -51px -11px; }
+#tn15shopbox    .flags .fr:hover { background-position: -68px -11px; }
+
+#tn15shopbox .logo { 
+  background: url(/images/SF85215787e2142e29fb709aee1f593dd3/tn15/shop_logos.gif) no-repeat;
+  position: absolute;
+  left: 10px;
+  top: 17px;
+  width: 120px;
+  height: 22px;
+}
+
+#tn15shopbox.us .logo   { background-position: 0px   0px; }
+#tn15shopbox.ca .logo   { background-position: 0px -22px; }
+#tn15shopbox.uk .logo   { background-position: 0px -44px; }
+#tn15shopbox.de .logo   { background-position: 0px -66px; }
+#tn15shopbox.fr .logo   { background-position: 0px -88px; }
+
+#tn15adrhs { 
+  float: right;
+  position:relative;
+  margin-left: 9px;
+  width:300px;
+}
+table.shrink.wrap { 
+  border-spacing: 0px;
+}
+td.shrinkwraptop { 
+  width: 510px;
+}
+.tn15mediaheader {
+  white-space: nowrap;
+}
+.tn15mediaheader span {
+  margin-left: 4px;
+}
+.tn15media { 
+  height: 92px;
+  line-height: 170px;
+  overflow: hidden;
+}
+.tn15media img { 
+  float: left;
+  margin-right: 4px;
+  margin-bottom: 92px;
+}
+
+#tn15main { 
+  margin-left: 130px;
+  margin-right: 0px;
+  margin-top: 7px;
+  padding-left: 7px;
+  border-left: 1px dotted #999;
+}
+#tn15main, #tn15main table { 
+  line-height: 131%;
+}
+#tn15main h6 { 
+  margin: 0;
+  font-size: 77%;
+  font-weight: normal;
+}
+#tn15main h5 {
+  margin: 0 0 0 0;
+  font-size: 100%;
+}
+#tn15main h5 a.glossary { 
+  color: #000;
+}
+#tn15main h5 span { 
+  font-weight: normal;
+}
+#tn15main h4 {
+  margin: 0 0 0 0;
+  font-size: 122%;
+}
+#tn15content ul {
+	margin-bottom:12px;
+}
+#tn15content h3, #tn15content h2 {
+color:#243757;
+font-size:16px;
+margin-bottom:6px;
+}
+.comment .tinystarbar {
+  margin: 1px;
+}
+.tinystarbar {
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 12px;
+  height: 12px;
+  width: 101px;
+  background: url(/images/SFd8c7b0d577286fe42a9c415f4acb6d8a/tn15/starstiny.png) no-repeat 0px -12px;
+  text-align: left;
+}
+.tinystarbar div {
+  margin: 0;
+  /*line-height: 12px;*/
+  height: 12px;
+  width: 0px;
+  background: url(/images/SFd8c7b0d577286fe42a9c415f4acb6d8a/tn15/starstiny.png) no-repeat 0px 0px;
+}
+#tn15 a.tn15more { 
+  text-decoration: underline;
+  white-space: nowrap; */ /* N.B. nowrap is a *patch* for bad arrow alignment in IE if the <a> wraps */
+}
+#tn15 a.tn15more.inline { 
+  margin-left: 0.2em;
+}
+/* .info --> "standard" 2 column-like display */
+#tn15main .info {
+  overflow: hidden;     /* Firefox needs hidden... otherwise wraps incorrectly */
+  height: 100%;         /* IE6 needs this! [To play nice with wrapping + margins + floats] */
+  margin-bottom: 12px;  /* Note: pair with div.info-content for 13px total */
+}
+#tn15main .info h5 {
+  float: left;
+  width: 10em;
+  overflow: hidden;
+}
+#tn15main div.info-content {
+  margin: 0 0 1px 10.25em;
+  /* A 1px margin-bottom needed for linux Firefox (else bottom pixel gets lost) */
+}
+* html #tn15main div.info-content { text-indent: -3px; } /* IE6 */
+#tn15main div.info-content.block{
+  margin: 0 0 1px 0;
+  width: 510px
+}
+#tn15main .inprod { 
+  line-height: 144%;
+  margin-bottom: 1em;
+}
+#tn15main .inprod .note { 
+  line-height: 129%;
+}
+#tn15main .filmo h5 { 
+  margin-top: 0;
+}
+#tn15main .filmo .label { 
+  position: absolute;
+  left: 170px;
+  margin-top: 0;
+  margin-left: 0;
+  padding-left: 0em;
+}
+#tn15main .filmo .label li { 
+  margin-left: 0;
+  padding-left: 0;
+  list-style: none;
+  list-style-position: inside;
+  font-size: 77%;
+  font-weight: normal;
+}
+#tn15main .indev { 
+  margin-left: 2em;
+  font-style: italic;
+}
+#tn15main .filmo ol { 
+  margin-left: 10em;
+  margin-top: 0;
+  margin-bottom: 1em;
+  padding-left: 0;
+}
+#tn15main .filmo ol li { 
+  margin-left: 0;
+}
+#tn15main hr { 
+  border: 1px #999;
+  height: 1px;
+  border-style: dotted none none none;
+  clear: none;
+  margin-left: 0px;
+}
+
+#tn15bot { 
+  border-top: 1px dotted #999;
+  margin-top: 12px;
+}
+#tn15bot.notop { 
+  border-top: none;
+}
+#tn15bot .right { 
+  float: right;
+  padding-top: 8px;
+  margin-left: 12px;
+  text-align: center;
+  color: #b7b7b7;
+  font-size: 77%;
+}
+#tn15bot .left hr { 
+  clear: none;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+#tn15main table.cast { 
+  border-collapse: collapse;
+  width:100%;
+}
+#tn15main table.cast td { 
+  height: 36px;
+  border-top: 1px dotted #999;
+  border-bottom: 1px dotted #999;
+  vertical-align: middle;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+}
+#tn15main table tr.odd { 
+  background: transparent url(/images/SF1933a673dc866f39341d626891d33336/wheel/fafafa.png) repeat;
+}
+#tn15main table tr.even { 
+  background: transparent url(/images/SFa4f858217e0c6c99eaad657fe14ce276/wheel/f0f1f8.png) repeat;
+}
+#tn15main table.cast td.hs { 
+  width: 24px;
+  padding-left: 1px;
+}
+#tn15main .comment .yn { 
+  padding: 2px; 
+}
+#tn15main .comment .yn form { 
+  display: inline; 
+  margin: 0; 
+}
+#tn15main .comment .yn input { 
+  padding: 0; 
+  font-size: 85%;
+  vertical-align: middle;
+}
+#tn15main .comment .yn span { 
+  color: #008000; 
+  font-weight: bold; 
+  font-size: 85%;
+}
+#tn15main .comment .yn span.error { 
+  color: #800000; 
+}
+#tn15main .comment .small { 
+  font-size: 77%;
+}
+#tn15main .comment b { 
+  font-size: 107%;
+}
+#tn15main .comment p { 
+  font-size: 100%;
+}
+#tn15main .strip { 
+  padding: 4px;
+  background: transparent url(/images/SF1933a673dc866f39341d626891d33336/wheel/fafafa.png) repeat;
+  border-top: 1px dotted #999;
+  border-bottom: 1px dotted #999;
+  margin-bottom: 1em;
+}
+#tn15main table.times { 
+  border-collapse: collapse;
+  border-top: 1px dotted #999;
+  border-bottom: 1px dotted #999;
+}
+#tn15main table.times td { 
+  padding: 4px;
+}
+#tn15main table.times td.extra { 
+  border: 1px solid #fff;
+  background: #fff;
+}
+#tn15main table.boards { 
+  font-size: 100%;
+  border-collapse: collapse;
+}
+#tn15main table.boards th.left { 
+  width: 1000px;
+}
+#tn15main table.boards th.right { 
+  width: 25%;
+}
+#tn15main table.boards th { 
+  background: #aeb3ce url(/images/SF74e2044b624156d432bf24f45d2f7156/tn15/messageboard_header_bgd.png) repeat-x;
+  font-size: 77%;
+  font-weight: bold;
+  color: #fff;
+  text-align: left;
+  padding-left: 0.5em;
+  height: 19px;
+}
+#tn15main table.boards td { 
+  border-top: 1px dotted #999;
+  border-bottom: 1px dotted #999;
+  vertical-align: middle;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  height: 24px;
+}
+#tn15main table.recs { 
+  font-size: 100%;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+#tn15main table.recs tr.poster { 
+  vertical-align: bottom;
+}
+#tn15main table.recs tr.poster a img { 
+  border-width: 1px;
+  background-color:#c2c8da;
+}
+#tn15main table.recs tr.rating { 
+  vertical-align: top;
+}
+#tn15main table.recs td { 
+  width: 20%;
+  text-align: center;
+}
+#tn15main table.recs td.first { 
+  width: 1000px;
+}
+#tn15main table.recs td small { 
+  font-size: 77%;
+}
+#tn15main .jump a { 
+  font-weight: bold;
+}
+#tn15main .toplinks { 
+  padding-top: 0px;
+  padding-bottom: 0px;
+  margin-bottom: 4px;
+}
+#tn15main .toplinks td { 
+  padding: 0px;
+  width: 10em;
+}
+#tn15main .toplinks a { 
+  text-decoration: none;
+}
+#tn15main .toplinks a b { 
+  text-decoration: underline;
+  white-space: nowrap;
+}
+#tn15main .toplinks a b.faded { 
+  color: #b7b7b7;
+  text-decoration: none;
+}
+#tn15main .toplinks a img { 
+  border: 0px;
+  vertical-align: middle;
+}
+
+#tn15.eprate #tn15main table hr, #tn15.epvote #tn15main table hr, #tn15.epdate #tn15main table hr { 
+  border: solid #999;
+  height: 2px;
+}
+#tn15 .meter span { 
+  font-weight: bold;
+}
+#tn15 .meter .down { 
+  color: #990000;
+}
+#tn15 .meter .up { 
+  color: #00bb00;
+}
+#tn15 .meter a { 
+  font-weight: bold;
+  margin-left: 0.2em;
+  text-decoration: underline;
+}
+
+#tn15 a.resumeLink { 
+    font-size: 92%; 
+    font-style: normal; 
+    font-weight: bold; 
+    color: orange; 
+}
+#tn15bot .submit {
+  background-color: #e2cb3e;
+  font-weight: bold;
+  cursor: pointer;
+}
+#tn15vote form { 
+  display: inline;
+}
+#tn15vote .submit {
+  background-color: #e2cb3e;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#ajax #tn15 { 
+  margin:0;
+  padding: 0;
+  border: 0;
+}
+
+#ajax #tn15main { 
+  margin:0;
+  padding: 0;
+  border: 0;
+  width: 820px;
+}
+#ajax #root { 
+  width: auto;
+}
+#ajax #tn15main .info {  
+  height: auto !important;
+  overflow: auto !important;
+}
+
+#tn15 iframe.ajax {
+  overflow-x: hidden;
+  overflow-y: auto;
+  width:820px;
+  height: 400px;
+}
+

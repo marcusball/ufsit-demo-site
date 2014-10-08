@@ -2,7 +2,11 @@
 class PrivateIndex extends PageObject{
 	private $realm = 'Super secret area';
 	private $secret = 'Is this necessary? Probably not.';
-	private $users = array('guest' => 'puppydog');
+	private $users = array(
+		'guest' => 'puppydog',
+		'winnfield' => 'Correctamundo',
+		'bender' => ''
+	);
 	
 	public function pageTitle(){ echo '[PRIVATE]'; }
 	
@@ -22,6 +26,8 @@ class PrivateIndex extends PageObject{
 				echo 'Wow, you don\'t belong here. Be gone!';
 				return false;
 			}
+			
+			
 			//Is something wrong with the auth data, or does the username not exist?
 			elseif(!($data = $this->httpDigestParse($_SERVER['PHP_AUTH_DIGEST'])) || !isset($this->users[$data['username']])){
 				$this->httpDigestPrompt();
