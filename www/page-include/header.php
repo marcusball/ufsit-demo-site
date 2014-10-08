@@ -18,6 +18,9 @@
 					<ul class="button-group">
 						<li><a href="/" class="button">Home</a></li>
 						<li><a href="/private/" class="button">Super Secret</a></li>
+						<?php if($GlobalPage->user->isLoggedIn()){ ?>
+						<li><a href="/private/?logout" class="button">Log out</a></li>
+						<?php } ?>
 						<!--<li><a href="#" class="button">Link 3</a></li>
 						<li><a href="#" class="button">Link 4</a></li>-->
 					</ul>
