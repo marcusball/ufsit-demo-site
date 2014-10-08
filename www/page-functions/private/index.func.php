@@ -2,7 +2,7 @@
 class PrivateIndex extends PageObject{
 	private $realm = 'Super secret area';
 	private $secret = 'Is this necessary? Probably not.';
-	private $users = array('guest' => 'guest');
+	private $users = array('guest' => 'puppydog');
 	
 	public function pageTitle(){ echo '[PRIVATE]'; }
 	
