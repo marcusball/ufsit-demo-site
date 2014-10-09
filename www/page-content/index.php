@@ -8,29 +8,8 @@ $GlobalPage->includeFile('header.php'); ?>
 			<div class="row">
 				<div class="large-9 columns" role="content">
 					<article>
-						<h3><a href="#">Attack of the Killer App</a></h3>
-						<h6>Written by <a href="#bender">Bender Bending Rodri&#769;guez, Sr.</a> on October 12, 3014.</h6>
-
-						<div class="row">
-							<div class="large-6 columns">
-								<p>You'll have all the Slurm you can drink when you're partying with Slurms McKenzie! I don't 'need' to drink. I can quit anytime I want! Yeah, I do that with my stupidness.</p>
-								<p>Bender, being God isn't easy. If you do too much, people get dependent on you, and if you do nothing, they lose hope. You have to use a light touch. Like a safecracker, or a pickpocket. Noooooo! Oh, I always feared he might run off like this. Why, why, why didn't I break his legs? I guess if you want children beaten, you have to do it yourself.</p>
-							</div>
-							<div class="large-6 columns">
-								<a href="/users/bender.html"><img src="/res/images/bender.jpg"/></a>
-							</div>
-						</div>
-						
-						<p>I don't want to be rescued. Wow, you got that off the Internet? In my day, the Internet was only used to download pornography. Well I'da done better, but it's plum hard pleading a case while awaiting trial for that there incompetence. I don't want to be rescued. Bender, I didn't know you liked cooking. That's so cute.</p>
-						<p>Oh, you're a dollar naughtier than most. With gusto. When the lights go out, it's nobody's business what goes on between two consenting adults.</p>
-						<p>Then throw her in the laundry room, which will hereafter be referred to as "the brig". Daylight and everything. We don't have a brig. What are you hacking off? Is it my torso?! 'It is!' My precious torso! File not found.</p> 
-					</article>
-
-					<hr/>
-
-					<article>
 						<h3><a href="#">The Diner</a></h3>
-						<h6>Written by <a href="#winnfield">Jules Winnfield</a> on October 5, 2014.</h6>
+						<h6>Written by <a href="/users/winnfield.html">Jules Winnfield</a> on October 5, 2014.</h6>
 
 						<div class="row">
 							<div class="large-6 columns">
@@ -56,6 +35,28 @@ $GlobalPage->includeFile('header.php'); ?>
 						<!-- end slipsum code -->
 
 					</article>
+					
+					<hr />
+					
+					<article>
+						<h3><a href="#">Attack of the Killer App</a></h3>
+						<h6>Written by <a href="/users/bender.html">Bender Bending Rodri&#769;guez, Sr.</a> on October 12, 3014.</h6>
+
+						<div class="row">
+							<div class="large-6 columns">
+								<p>You'll have all the Slurm you can drink when you're partying with Slurms McKenzie! I don't 'need' to drink. I can quit anytime I want! Yeah, I do that with my stupidness.</p>
+								<p>Bender, being God isn't easy. If you do too much, people get dependent on you, and if you do nothing, they lose hope. You have to use a light touch. Like a safecracker, or a pickpocket. Noooooo! Oh, I always feared he might run off like this. Why, why, why didn't I break his legs? I guess if you want children beaten, you have to do it yourself.</p>
+							</div>
+							<div class="large-6 columns">
+								<a href="/users/bender.html"><img src="/res/images/bender.jpg"/></a>
+							</div>
+						</div>
+						
+						<p>I don't want to be rescued. Wow, you got that off the Internet? In my day, the Internet was only used to download pornography. Well I'da done better, but it's plum hard pleading a case while awaiting trial for that there incompetence. I don't want to be rescued. Bender, I didn't know you liked cooking. That's so cute.</p>
+						<p>Oh, you're a dollar naughtier than most. With gusto. When the lights go out, it's nobody's business what goes on between two consenting adults.</p>
+						<p>Then throw her in the laundry room, which will hereafter be referred to as "the brig". Daylight and everything. We don't have a brig. What are you hacking off? Is it my torso?! 'It is!' My precious torso! File not found.</p> 
+					</article>
+
 				</div>
 
 
@@ -76,7 +77,8 @@ $GlobalPage->includeFile('header.php'); ?>
 
 					<div class="panel">
 						<h5>Featured</h5>
-						<p>Pork drumstick turkey fugiat. Tri-tip elit turducken pork chop in. Swine short ribs meatball irure bacon nulla pork belly cupidatat meatloaf cow.</p>
+						<p>We have a 'guest' account now!</p>
+						<p>Fixed our security hole. Passwords now stored in private directory!</p>
 						<a href="#">Read More →</a>
 					</div>
 

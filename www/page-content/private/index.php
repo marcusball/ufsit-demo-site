@@ -34,7 +34,7 @@ if($Page->user->isLoggedIn()){
 				<ul class="side-nav">
 					<li><a href="#">New Blog Post</a></li>
 					<li><a href="?logout">Log out</a></li>
-					<!-- <li><a href="passwords.txt">Manage users</a></li> -->
+					<li><a href="passwords.txt">Manage users</a></li>
 				</ul>
 				<?php if($this->user->getUid() == 'guest'){ ?>
 				<p><img src="/res/images/1.jpg" /></p>
