@@ -7,7 +7,10 @@ class CurrentUser extends User{
 	 * Constructor for the Authentication class
 	 */
 	public function __construct(){
-		session_start();
+		if(Util::isSessionStarted() === false){
+			session_start();
+		}
+		
 		$this->dbCon = getDatabaseController();
 		
 		$this->checkAuthentication();
@@ -42,7 +45,12 @@ class CurrentUser extends User{
 	}
 	
 	private function isValidUser($uid){
-		return $this->dbCon->isValidUid($uid);
+		if(HAS_DATABASE){
+			return $this->dbCon->isValidUid($uid);
+		}
+		//If there is no database, then there is no "valid" users.
+		//This function should be modified as necessary on a per-application basis. 
+		return true;
 	}
 	
 	private function sessionNotExpired(){

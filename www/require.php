@@ -9,9 +9,6 @@ set_include_path(get_include_path() . PATH_SEPARATOR . $path); //Adds the './inc
 
 /*
  * Includes all of the necessary helper classes and files.
- * $initLight is basically used to allow for cases where one may not want to include all of the files.
- * This is mostly for cases where custom files are used (not the default PageObject classes and templates),
- * where one may wish to access resources from this framework, without creating a page handled by this framework. 
  */
 function init(){
 	$classPath = dirname(__FILE__) . PATH_CLASS; //Get the path to our .class.php files 
@@ -21,24 +18,6 @@ function init(){
 	spl_autoload_register();
 	
 	require_once 'password.php'; 
-
-	// require_once 'databasecontroller.php';
-	// require_once 'currentuser.php';
-	// if(!$initLight){ //If we want to include everything. 
-		// require_once 'output.php';
-		// require_once 'pageobj.php';
-		// require_once 'nopage.php';
-
-		// require_once 'user.php';
-		// require_once 'formkeys.php';
-		// require_once 'password.php';
-		
-		// /* 
-		 // * cleaner.php requires HTMLPurifier. 
-		 // * Download it from //htmlpurifier.org/ and place the htmlpurifier folder in /include/ 
-		 // */
-		//require_once 'cleaner.php'; 
-	// }
 }
 
 /*
@@ -101,11 +80,15 @@ function SQLConnect(){
 	try {
 		$SQLCON = new DatabaseController(DB_PDO_NAME.':host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
 		$SQLCON->setPDOAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		
+		define('HAS_DATABASE',true);
 		return $SQLCON;
 	}
 	catch(PDOException $e){
 		logError("Could not select database (".DB_NAME.").",$e->getMessage(),time());
 	}
+	
+	define('HAS_DATABASE',false);
 	return new NoDatabaseController();
 }
 
@@ -119,7 +102,6 @@ function getDatabaseController(){
 		return $SQLCON;
 	}
 	else{
-		logWarning('Require.php generating new Database Controller. This shouldn\'t happen usually.');
 		return SQLConnect();
 	}
 }
@@ -133,7 +115,6 @@ function getCurrentUser(){
 		return $USER;
 	}
 	else{
-		logWarning('Require.php generating new CurrentUser. This shouldn\'t happen usually.');
 		return new CurrentUser();
 	}
 }
@@ -147,7 +128,6 @@ function getFormKeyManager(){
 		return $FORMKEYMAN;
 	}
 	else{
-		logWarning('Require.php generating new Form Key Manager. This shouldn\'t happen usually.');
 		return new FormKeyManager();
 	}
 }
@@ -203,18 +183,11 @@ function getCurrentUrl(){
 
 
 /** Imports and includes **/
-global $INIT_LIGHT; //Get the INIT_LIGHT global variable. This should be set before 'require.php' is included. 
-$INIT_LIGHT = ($INIT_LIGHT === true)?true:false; //Make sure this is false if the variable is anything other than true (null/non-bool).
-init($INIT_LIGHT); //Import stuff
+init(); //Import stuff
 
 /** Create an SQL connection **/
 $SQLCON = SQLConnect();
-$USER = new CurrentUser(); //Keep these in global scope
-$FORMKEYMAN = null; //Keep these in global scope
-
-if($INIT_LIGHT === false){
-	global $FORMKEYMAN;
-	$FORMKEYMAN = new FormKeyManager();
-}
+$USER = null; //Keep these in global scope
+$FORMKEYMAN = null;
 		
 ?>
