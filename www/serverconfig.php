@@ -13,6 +13,9 @@ define('DB_HOST', 'localhost');
 define('DB_CHARSET', 'utf8');
 define('DB_COLLATE', '');
 
+define('PATH_INCLUDE','/include');
+define('PATH_CLASS',PATH_INCLUDE.'/class');
+
 define('SERVER_LOG_PATH_ERRORS','./server/errors.log');
 define('SERVER_LOG_PATH_WARNINGS','./server/warnings.log');
 

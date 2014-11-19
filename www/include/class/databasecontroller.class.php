@@ -1,5 +1,5 @@
 <?php
-class DBController{
+class DatabaseController{
 	private $sqlCon;
 	
 	public function __construct(){

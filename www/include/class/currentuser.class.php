@@ -1,5 +1,4 @@
 <?php
-require_once 'user.php';
 class CurrentUser extends User{	
 	private $_isLoggedIn = false; //If the user has been validated as being logged in.
 	private $_hasCheckedAuthentication = false; //If the class has checked yet whether the user is logged in. 

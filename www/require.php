@@ -2,7 +2,7 @@
 /** Functions and definitions that will be included for every page **/
 require 'config.php';
 
-$path = dirname(__FILE__) . '/include'; 
+$path = dirname(__FILE__) . PATH_INCLUDE; 
 set_include_path(get_include_path() . PATH_SEPARATOR . $path); //Adds the './include' folder to the include path
 // That doesn't explain much, but basically, if I say "include 'file.php';", 
 // it now searches './include' for file.php, as well as the default include locations.
@@ -13,26 +13,32 @@ set_include_path(get_include_path() . PATH_SEPARATOR . $path); //Adds the './inc
  * This is mostly for cases where custom files are used (not the default PageObject classes and templates),
  * where one may wish to access resources from this framework, without creating a page handled by this framework. 
  */
-function init($initLight = false){
-	require_once 'databasecontroller.php';
-	require_once 'currentuser.php';
-	if(!$initLight){ //If we want to include everything. 
-		require_once 'output.php';
-		require_once 'pageobj.php';
-		require_once 'nopage.php';
+function init(){
+	$classPath = dirname(__FILE__) . PATH_CLASS; //Get the path to our .class.php files 
+	set_include_path(get_include_path() . PATH_SEPARATOR . $classPath); //Add that path to the include path
+	
+	spl_autoload_extensions('.class.php'); //Auto-load any of our .class.php classes
+	spl_autoload_register();
+	
+	require_once 'password.php'; 
 
-		require_once 'user.php';
-		require_once 'formkeys.php';
-		require_once 'password.php';
+	// require_once 'databasecontroller.php';
+	// require_once 'currentuser.php';
+	// if(!$initLight){ //If we want to include everything. 
+		// require_once 'output.php';
+		// require_once 'pageobj.php';
+		// require_once 'nopage.php';
+
+		// require_once 'user.php';
+		// require_once 'formkeys.php';
+		// require_once 'password.php';
 		
-		/* 
-		 * cleaner.php requires HTMLPurifier. 
-		 * Download it from //htmlpurifier.org/ and place the htmlpurifier folder in /include/ 
-		 */
+		// /* 
+		 // * cleaner.php requires HTMLPurifier. 
+		 // * Download it from //htmlpurifier.org/ and place the htmlpurifier folder in /include/ 
+		 // */
 		//require_once 'cleaner.php'; 
-	}
-	
-	
+	// }
 }
 
 /*
@@ -86,26 +92,25 @@ function debug($message){
 }
 
 /*
- * Connects to a PDO database and returns an instance of DBController, from databasecontroller.php
+ * Connects to a PDO database and returns an instance of DatabaseController, from databasecontroller.php
  * DO NOT call this function directly to access the database. 
  * This file calls it (in getDatabaseController() ONLY), and maintains a reference to the value.
  * Call getDatabaseController() to get a reference to it. 
  */
 function SQLConnect(){
 	try {
-		$SQLCON = new DBController(DB_PDO_NAME.':host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
+		$SQLCON = new DatabaseController(DB_PDO_NAME.':host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
 		$SQLCON->setPDOAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		return $SQLCON;
 	}
 	catch(PDOException $e){
 		logError("Could not select database (".DB_NAME.").",$e->getMessage(),time());
 	}
-	require_once 'nodatabasecontroller.php';
 	return new NoDatabaseController();
 }
 
 /*
- * Access method for receiving a reference to the database controller (DBController).
+ * Access method for receiving a reference to the database controller (DatabaseController).
  */
 function getDatabaseController(){
 	global $SQLCON;
