@@ -12,3 +12,5 @@
 		<link rel="icon" href="/favicon.ico" type="image/ico" />
 	</head>
 	<body>
+		<h1><a href="/" style="color: black; text-decoration: none;" >A Template Site</a></h1>
+		<hr />
