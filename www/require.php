@@ -54,7 +54,7 @@ function logWarning($description){
 			$debug[0]['file'].':'.$debug[0]['line'],
 			$description
 		);
-		file_put_contents(SERVER_LOG_PATH_ERRORS, $data, FILE_APPEND);
+		file_put_contents(SERVER_LOG_PATH_WARNINGS, $data, FILE_APPEND);
 	}
 }
 
