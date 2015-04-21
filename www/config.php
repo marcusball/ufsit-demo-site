@@ -26,7 +26,7 @@ define('REWRITE_ONLY',false);
 //Note, however, no matter what value here, the corresponding file is still found using INCLUDE_PHP_EXTENSION.
 //So, if this is '.php', then 'page.php' is still executed using 'page.func.php'.
 //  if this is '', 'page' is 'page.func.php' and 'page.xzy' is 'page.xyz.func.php'.
-define('REQUEST_PHP_EXTENSION','');
+define('REQUEST_PHP_EXTENSION','.php');
 
 //The extension for the php files that will be included
 define('INCLUDE_PHP_EXTENSION','.func.php');

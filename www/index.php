@@ -137,7 +137,7 @@ class RequestHandler{
 				call_user_func(array($this->pageFunctionObject,REQUEST_FUNC_POST_EXECUTE)); //Page specific post-execution function. 
 			}
 			$this->internalPostExecute(); //Call the global RequestHandler postExecute function. Perform any tasks we want to always occur after processing, but before sending output.
-			$this->handleOutput($this->pageFunctionObject->response);
+            $this->handleOutput($this->pageFunctionObject->response);
 		}
 		else{ //Since we know we have either the script or the template, then, here, we must have only the template.
 			$this->requestType = RequestType::HTML;

@@ -9,7 +9,7 @@ class CurrentUser extends User{
 	 * Constructor for the Authentication class
 	 */
 	public function __construct(){
-		if(Util::isSessionStarted() === false){
+		if(utilities\Session::isSessionStarted() === false){
 			session_start();
 		}
 		

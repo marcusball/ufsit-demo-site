@@ -80,7 +80,7 @@ function debug($message){
 class ResourceManager{
 	/** Create an SQL connection **/
 	private static $SQLCON;
-	private static$USER;
+	private static $USER;
 	private static $FORMKEYMAN;
 
 	/*
@@ -90,16 +90,18 @@ class ResourceManager{
 	 * Call getDatabaseController() to get a reference to it. 
 	 */
 	public static function SQLConnect(){
-		try {
-			self::$SQLCON = new DatabaseController();
-			self::$SQLCON->setPDOAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-			
-			define('HAS_DATABASE',true);
-			return self::$SQLCON;
-		}
-		catch(PDOException $e){
-			logError("Could not select database (".DB_NAME.").",$e->getMessage(),time());
-		}
+        if(DB_ENABLE){
+            try {
+                self::$SQLCON = new DatabaseController();
+                self::$SQLCON->setPDOAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                
+                define('HAS_DATABASE',true);
+                return self::$SQLCON;
+            }
+            catch(\PDOException $e){
+                Log::error("Could not select database (".DB_NAME.").",$e->getMessage());
+            }
+        }
 		
 		define('HAS_DATABASE',false);
 		return new NoDatabaseController();

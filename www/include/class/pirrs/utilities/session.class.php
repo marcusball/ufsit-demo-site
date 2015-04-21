@@ -1,5 +1,6 @@
 <?php
-class Util{
+namespace pirrs\utilities;
+class Session{
 	/*
 	 * Check if a session exists before running session_start().
 	 * Source: http://php.net/manual/en/function.session-status.php

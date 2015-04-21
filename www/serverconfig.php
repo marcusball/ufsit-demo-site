@@ -5,6 +5,8 @@ define('SITE_LABEL','template');
 define('SITE_NAME','Template');
 define('SITE_DOMAIN_TOP','template.local'); //The highest level of the domain of this site. (No subdomains).
 define('SITE_DOMAIN','www.'.SITE_DOMAIN_TOP); //Primary (sub)domain of this website (www.example.com / example.com).
+
+define('DB_ENABLE',true); //Set to false to disable database connection
 define('DB_PDO_NAME','pgsql'); // The PDO name for your database server
 define('DB_NAME', 'my_database');
 define('DB_USER', 'user');
@@ -19,12 +21,6 @@ define('PATH_CLASS',PATH_INCLUDE.'/class');
 //The default log to write Log messages to.
 define('SERVER_LOG_PATH','./server/debug.log');
 
-//Uncomment to override SERVER_LOG_PATH for 'error' logging.
-//define('SERVER_LOG_PATH_ERRORS','./server/errors.log');
-//Uncomment to override SERVER_LOG_PATH for 'warning' logging. 
-//define('SERVER_LOG_PATH_WARNINGS','./server/warnings.log');
-
-
-define('PASSWORD_SALT','');
+define('PASSWORD_SALT',''); //You should add something random here if you're using the included authentication functions.
 
 ?>
