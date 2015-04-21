@@ -16,9 +16,15 @@ define('DB_COLLATE', '');
 define('PATH_INCLUDE','/include');
 define('PATH_CLASS',PATH_INCLUDE.'/class');
 
-define('SERVER_LOG_PATH_ERRORS','./server/errors.log');
-define('SERVER_LOG_PATH_WARNINGS','./server/warnings.log');
+//The default log to write Log messages to.
+define('SERVER_LOG_PATH','./server/debug.log');
 
-define('PASSWORD_SALT',''); //You should add something random here if you're using the included authentication functions.
+//Uncomment to override SERVER_LOG_PATH for 'error' logging.
+//define('SERVER_LOG_PATH_ERRORS','./server/errors.log');
+//Uncomment to override SERVER_LOG_PATH for 'warning' logging. 
+//define('SERVER_LOG_PATH_WARNINGS','./server/warnings.log');
+
+
+define('PASSWORD_SALT','');
 
 ?>

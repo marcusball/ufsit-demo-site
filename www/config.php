@@ -7,15 +7,26 @@ define('SERVER_INI_FILE','server/config.ini');
 
 //Use this array to set regular expressions for rewrite rules.
 //Use the format "/path/to/file.php" => "/file/(?'option'\w+)"
-//In side of PageObject scripts, you'll be able to access the results using the arg('option') and issetArg('option) functions. 
+//If REWRITE_ONLY is true, you can allow a specific file through using the syntax: "file.php" => null. 
 $REWRITE_RULES = array(
 	'test.php' => "/test/(?'num'\d+)"
 );
+
+//ONLY allow pages to be accessed if they're in the rewrite rules.
+define('REWRITE_ONLY',false);
 
 /****************************************************************/
 /** Below are all functionality tweaks. I recommend you don't  **/
 /** change any of this unless you know what you're doing.      **/
 /****************************************************************/
+//This is the extension that requests must have in order to be considered files to execute
+//Requests that do not end in this extension will not be executed.
+//For example, if the value of this was '.php', only a request like '/page.php' will be executed, '/page.xyz' would not.
+//Following the same logic, if this is left empty (''), then no extension is used. 
+//Note, however, no matter what value here, the corresponding file is still found using INCLUDE_PHP_EXTENSION.
+//So, if this is '.php', then 'page.php' is still executed using 'page.func.php'.
+//  if this is '', 'page' is 'page.func.php' and 'page.xzy' is 'page.xyz.func.php'.
+define('REQUEST_PHP_EXTENSION','');
 
 //The extension for the php files that will be included
 define('INCLUDE_PHP_EXTENSION','.func.php');
@@ -62,6 +73,7 @@ define('INPUT_PASSWORD_MAX_LENGTH',255);
 define('INPUT_PASSWORD_MIN_LENGTH',8);
 
 define('AUTH_HASH_COMPLEXITY',14);
+
 /****************************************************************/
 /** The config definitions below here should NOT be modified!  **/
 /** Unless you really know what you're doing, and are prepared **/
@@ -70,8 +82,12 @@ define('AUTH_HASH_COMPLEXITY',14);
 /****************************************************************/
 
 
-//Define the name of the class that will enclose any script that handles a request
-define('REQUEST_CLASS_PARENT','PageObject');
+//Define the name of the class that will enclose any script that handles a page request
+define('PAGE_REQUEST_CLASS_PARENT','PageObject');
+//Define the name of the class that will enclose any script that handles an API request
+define('API_REQUEST_CLASS_PARENT','APIObject');
+
+//???
 define('REQUEST_FUNC_GET_TEMPLATE','getTemplate');
 //Function that the controller will call to determine if a user must be logged in to view the requested page. Called before preExecute. 
 define('REQUEST_FUNC_REQUIRE_LOGGED_IN','requireLoggedIn');

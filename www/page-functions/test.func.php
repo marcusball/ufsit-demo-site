@@ -1,4 +1,5 @@
 <?php
+namespace pirrs;
 class Page extends PageObject{
 	public function printTitle(){
 		echo "An awesome title";

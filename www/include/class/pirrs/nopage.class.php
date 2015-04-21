@@ -1,4 +1,5 @@
 <?php
+namespace pirrs;
 class NoPage{
     public function __set($name, $value)
     {

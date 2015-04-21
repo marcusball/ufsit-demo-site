@@ -1,41 +1,37 @@
 <?php
+namespace pirrs;
+use \PDO;
+
 class DatabaseController{
-	private $sqlCon;
-	
+	private $_sqlCon; //DO NOT ACCESS DIRECTLY! Use $this->sqlCon()
+	// add other private database connections here	
 	public function __construct(){
-		$dsn = "";
-		$username = "";
-		$password = "";
-		$driver_options = null;
-		for($i=0;$i<func_num_args();$i++){	//Loop through all of the arguments provided to the instruction ("RequestObject($arg1,$arg2,...)").
-			switch($i){
-				case 0:
-					$dsn = func_get_arg($i);
-					continue;
-				case 1:
-					$username = func_get_arg($i);
-					continue;
-				case 2:
-					$password = func_get_arg($i);
-					continue;
-				case 3:
-					$driver_options = func_get_arg($i);
-					continue;
-				default:
-			}
-		} 
-		
-		$this->sqlCon = new PDO($dsn,$username,$password,$driver_options);
 	}
 	public function setPDOAttribute($attribute,$value){
-		return $this->sqlCon->setAttribute($attribute,$value);
+		return $this->sqlCon()->setAttribute($attribute,$value);
 	}
 	
-	public function getSQLTimeStamp($time = null){
+	public static function getSQLTimeStamp($time = null){
 		if($time == null) $time = time();
 		return date('Y-m-d H:i:s',$time);
 	}
 	
+	public function getSQLConnection(){
+		return $this->sqlCon();
+	}
+	
+	private function sqlCon(){
+		if($this->_sqlCon == null){
+			$this->_sqlCon = new PDO(DB_PDO_NAME.':host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD, null);
+		}
+		return $this->_sqlCon;
+	}
+	
+	/* 
+	 * Add other private databaseConnect functions here
+	 * Return the connection object, then save to private member.
+	 */
+
 	/***********************************************************/
 	/* DO NOT MODIFY THE CODE ABOVE THIS SECTION               */
 	/* Add in your own database access methods below this point*/
@@ -48,7 +44,7 @@ class DatabaseController{
 	
 	public function isValidUid($uid){
 		try{
-			$uidCheck = $this->sqlCon->prepare('SELECT uid FROM users WHERE uid=:uid');
+			$uidCheck = $this->sqlCon()->prepare('SELECT uid FROM users WHERE uid=:uid');
 			$uidCheck->execute(array(':uid'=>$uid));
 			
 			if(($uidReturn = $uidCheck->fetch(PDO::FETCH_ASSOC)) !== false){
@@ -81,22 +77,21 @@ class DatabaseController{
 	 */
 	public function registerNewUser($fullName,$email,$password){
 		$passwordHash = password_hash($password.PASSWORD_SALT, PASSWORD_BCRYPT, array("cost" => AUTH_HASH_COMPLEXITY));
-		$nowDatetime = $this->getSQLTimeStamp();
-		$insertQuery="INSERT INTO users (email,full_name,password) VALUES (:email,:fullname,:password);";
+		$nowDatetime = self::getSQLTimeStamp();
 		try{
-			$this->sqlCon->beginTransaction(); //Registering a new user means a lot of different inserts, so we want to make sure either all or nothing occurs. 
+			$this->sqlCon()->beginTransaction(); //Registering a new user means a lot of different inserts, so we want to make sure either all or nothing occurs. 
 			
 			
 			//Let's insert the user into the user table
-			$regStatement = $this->sqlCon->prepare($insertQuery);
+			$regStatement = $this->sqlCon()->prepare($insertQuery);
 			$regStatement->execute(array(':email'=>$email,':fullname'=>$fullName,':password'=>$passwordHash));
 			
-			$this->sqlCon->commit();
+			$this->sqlCon()->commit();
 			
 			$uidValue = $this->getUidFromEmail($email); //get the ID we just inserted, because lastInsertId can be weird sometimes.
 		}
 		catch(PDOException $e){
-			$this->sqlCon->rollBack();
+			$this->sqlCon()->rollBack();
 			logError("An error occurred while registering a new user! Code: {$e->getCode()}.",$e->getMessage());
 			return false;
 		}
@@ -115,7 +110,7 @@ class DatabaseController{
 	public function changeUserPassword($uid,$newPassword){
 		$passwordHash = password_hash($newPassword.PASSWORD_SALT, PASSWORD_BCRYPT, array('cost' => AUTH_HASH_COMPLEXITY));
 		try{
-			$updateQuery = $this->sqlCon->prepare('UPDATE users SET password=:password WHERE uid=:uid');
+			$updateQuery = $this->sqlCon()->prepare('UPDATE users SET password=:password WHERE uid=:uid');
 			$updateQuery->execute(array(':uid'=>$uid,':password'=>$passwordHash));
 			if($updateQuery->rowCount() == 1){
 				return true;
@@ -201,7 +196,7 @@ class DatabaseController{
 					
 		$hashUpdate = "UPDATE users SET password=:hash WHERE uid=:uid;";
 		try{
-			$hashUpdateStatement = $this->sqlCon->prepare($hashUpdate);
+			$hashUpdateStatement = $this->sqlCon()->prepare($hashUpdate);
 			$hashUpdateStatement->execute(array(':hash'=>$hash,':uid'=>$uid));
 		}
 		catch(PDOException $e){
@@ -216,7 +211,7 @@ class DatabaseController{
 	public function getUidFromEmail($email){
 		$userCheckQuery = "SELECT uid FROM users WHERE email=:email LIMIT 1;"; //Make sure this keeps LIMIT 1
 		try{
-			$statement = $this->sqlCon->prepare($userCheckQuery);
+			$statement = $this->sqlCon()->prepare($userCheckQuery);
 			$statement->execute(array(':email' => $email));
 			
 			//If the query returned rows, then someone IS registered using this email
@@ -244,7 +239,7 @@ class DatabaseController{
 	public function getUserInformation($uid){
 		$userQuery = 'SELECT uid, email, full_name FROM users WHERE uid=:uid LIMIT 1;';
 		try{
-			$userStatement = $this->sqlCon->prepare($userQuery);
+			$userStatement = $this->sqlCon()->prepare($userQuery);
 			$userStatement->bindParam(':uid',$uid,PDO::PARAM_INT);
 			$userStatement->execute();
 			
@@ -272,7 +267,7 @@ class DatabaseController{
 	/* Database Methods                                        */
 	/***********************************************************/
 	public function getLastErrorCode(){
-		return $this->sqlCon->errorCode();
+		return $this->sqlCon()->errorCode();
 	}
 }
 ?>

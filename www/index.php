@@ -1,4 +1,5 @@
 <?php
+namespace pirrs;
 /** This is the page that will handle all incoming api requests **/
 $startTime = microtime(true);
 require 'require.php'; 
@@ -9,6 +10,7 @@ class RequestHandler{
 	private $user = null;
 	private $reqArgs = null;
 	
+	private $requestType;
 	public $pageFunctionObject;
 	
 	/** Contructor
@@ -17,9 +19,18 @@ class RequestHandler{
 	public function __construct(){
 		for($i=0;$i<func_num_args();$i++){
 			$arg = func_get_arg($i);
+			/*if(is_string($arg)){
+				$this->_request = $arg;
+			}*/
+			/*elseif(is_object($arg)){
+				$class = get_class($arg);
+				if($class == 'DBController'){
+					$this->dbCon = $arg;
+				}
+			}*/
 		}
-		$this->dbCon = getDatabaseController();
-		$this->user = getCurrentUser();
+		$this->dbCon = ResourceManager::getDatabaseController();
+		$this->user = ResourceManager::getCurrentUser();
 		$this->pageFunctionObject = null;
 	}
 	
@@ -49,15 +60,11 @@ class RequestHandler{
 		return array(false,false);
 	}
 	
-	/*
-	 * Tries to execute the pages given by the requested page. 
-	 * If neither a template file (/page-content/), nor a PageObject file (/page-functions/) are found, then it will return the standard 404 page.
-	 * $requestedPage: the page name (eg, 'index.php' will be 'index'; 'foo/bar.php' will be 'foo/bar'). 
-	 */
 	public function executeRequest($requestedPage){
 		list($requestedScript,$requestedTemplate) = $this->getRequestScript($requestedPage);
+		
 		if($requestedScript === false && $requestedTemplate === false){
-			$this->handleOutput(404);
+			$this->handleOutput(DefaultAPIResponses::NotFound());
 		}
 		else{
 			$this->executePage($requestedScript, $requestedTemplate);
@@ -66,38 +73,74 @@ class RequestHandler{
 	
 	private function executePage($requestedScript, $requestedTemplate){
 		if($requestedScript !== false){
+			$this->interalPreExecute(); //Call the global RequestHandler pre-execution function. Take care of anything that should happen before the page begins loading.
+			
 			require $requestedScript; //Bring in the script that will perform the server side operations for the requested page
 
-			$requestClass = $this->getPageFunctionClass(REQUEST_CLASS_PARENT); //Get the name of the class that corresponds to the class within $requestedScript. 
-			if($requestClass === false){ //If no such class exists, then we'll fall back to using just the template page. 
-				$this->executeWithoutPage($requestedTemplate); //Instead of dying, let's just display the template. 
-				return;
+			$requestClass = $this->getPageFunctionClass(__NAMESPACE__.'\\'.API_REQUEST_CLASS_PARENT);
+			if($requestClass === false){ //Test for API
+				$this->requestType = RequestType::PAGE;
+				$requestClass = $this->getPageFunctionClass(__NAMESPACE__.'\\'.PAGE_REQUEST_CLASS_PARENT);
+				if($requestClass === false){ //Test for Page
+					$this->executeWithoutPage($requestedTemplate); //Instead of dying, let's just display the template. 
+					return;
+				}
+				else{
+					//Okay, time to display a page
+					//pageFunctionObject will be of type PageObject
+					$this->pageFunctionObject = new $requestClass(); //Instantiate our page handling object
+					$this->pageFunctionObject->setRequestArgs($this->reqArgs);
+					
+					if(call_user_func(array($this->pageFunctionObject,REQUEST_FUNC_REQUIRE_LOGGED_IN)) === true && !$this->user->isLoggedIn()){ //If the user must be logged in to view this page, and the user is not logged in
+						$this->handleOutput(DefaultAPIResponses::Unauthorized()); //not authorized
+						return;
+					}
+					else{
+						$preexResult = call_user_func(array($this->pageFunctionObject,REQUEST_FUNC_PRE_EXECUTE)); //Call the page specific pre-execution function. 
+						if($preexResult !== false){ //If preExecute() returns false, cancel loading of template
+							if($requestedTemplate !== false){ //If we have a template file, import that.
+								$this->includePageFile($requestedTemplate,$this->pageFunctionObject);
+							}
+							
+						}
+						call_user_func(array($this->pageFunctionObject,REQUEST_FUNC_POST_EXECUTE)); //Page specific post-execution function. 
+					}
+				}
 			}
-
-			$this->pageFunctionObject = new $requestClass(); //Instantiate our page handling object
-			$this->pageFunctionObject->setRequestArgs($this->reqArgs); //Tell the handler any args that might be present.
-			
-			//executes the requireLoggedIn() function from the PageObject handler. If that function returns true, then test if the user is logged in. 
-			if(call_user_func(array($this->pageFunctionObject,REQUEST_FUNC_REQUIRE_LOGGED_IN)) === true && !$this->user->isLoggedIn()){ //If the user must be logged in to view this page, and the user is not logged in
-				$this->handleOutput(401); //not authorized
-			}
-			else{ 
+			else{
+				$this->requestType = RequestType::API;
+				//respond to an API request
+				//pageFunctionObject will be of type APIObject
+				$this->pageFunctionObject = new $requestClass(); //Instantiate our page handling object
+				$this->pageFunctionObject->request->setArgs($this->reqArgs);
+				
 				$this->interalPreExecute(); //Call the global RequestHandler pre-execution function. Take care of anything that should happen before the page begins loading. 
 				$preexResult = call_user_func(array($this->pageFunctionObject,REQUEST_FUNC_PRE_EXECUTE)); //Call the page specific pre-execution function. 
-				if($preexResult !== false){ //Only load the template if preExecute() does not return false. 
-					if($requestedTemplate !== false){ //If we have a template file, import that.
-						$this->includePageFile($requestedTemplate,$this->pageFunctionObject);
+				
+				if($preexResult !== false){ //If preExecute() returns false, cancel loading of template
+					switch($this->pageFunctionObject->request->getMethod()){
+						default:
+						case(RequestMethod::GET):
+							call_user_func(array($this->pageFunctionObject,'executeGet'));
+							break;
+						case RequestMethod::POST:
+							call_user_func(array($this->pageFunctionObject,'executePost'));
+							break;
+						case RequestMethod::PUT:
+							call_user_func(array($this->pageFunctionObject,'executePut'));
+							break;
+						case RequestMethod::DELETE:
+							call_user_func(array($this->pageFunctionObject,'executeDelete'));
+							break;
 					}
 				}
 				call_user_func(array($this->pageFunctionObject,REQUEST_FUNC_POST_EXECUTE)); //Page specific post-execution function. 
-
-				$outputData = call_user_func(array($this->pageFunctionObject, REQUEST_FUNC_RET_DATA));
-				$outputStatus = call_user_func(array($this->pageFunctionObject, REQUEST_FUNC_RET_STATUS));
-				
-				$this->handleOutput($outputStatus,$outputData);
 			}
+			$this->internalPostExecute(); //Call the global RequestHandler postExecute function. Perform any tasks we want to always occur after processing, but before sending output.
+			$this->handleOutput($this->pageFunctionObject->response);
 		}
 		else{ //Since we know we have either the script or the template, then, here, we must have only the template.
+			$this->requestType = RequestType::HTML;
 			$this->executeWithoutPage($requestedTemplate);
 		}
 	}
@@ -110,7 +153,7 @@ class RequestHandler{
 		$templateReferenceVar = new NoPage(); //This is essentially to make error reporting obvious. If the template without an associated php file tries to call functions as though there is a php file for it, this will output some nice helpful errors. 
 		$this->includePageFile($requestedTemplate,$templateReferenceVar);
 	}
-
+	
 	/*
 	 * Finds the name of a class that is a descendent of $parentClass. 
 	 * This searches the list of currently declared classes, and finds any that are
@@ -121,10 +164,10 @@ class RequestHandler{
 	private function getPageFunctionClass($parentClass){
 		$classes = get_declared_classes();
 		$children = array();
-		$parent = new ReflectionClass($parentClass); //A class that reports information about a class
+		$parent = new \ReflectionClass($parentClass); //A class that reports information about a class
 		
 		foreach ($classes AS $class){
-			$current = new ReflectionClass($class);
+			$current = new \ReflectionClass($class);
 			if ($current->isSubclassOf($parent)){
 				$children[] = $current;
 			}
@@ -132,7 +175,7 @@ class RequestHandler{
 		
 		if(count($children) < 1){
 			//debug("No class was found that is a subclass of {$parentClass}!");
-			logWarning("No class was found that is a subclass of {$parentClass}!");
+			//logWarning("No class was found that is a subclass of {$parentClass}!",'index.php',__LINE__);
 			return false;
 		}
 		return $children[0]->name;
@@ -145,12 +188,30 @@ class RequestHandler{
 		OutputHandler::preExecute();
 	}
 	
-	private function handleOutput($status,$data = null){
-		OutputHandler::handleOutput($status,$data);
+	/*
+	 * Called after every request is finished processing, just before sending output.
+	 */
+	private function internalPostExecute(){
+		$this->pageFunctionObject->response->headers->set('X-XRDS-Location',sprintf('http://%s/xrds.xml',$_SERVER['SERVER_NAME']));
 	}
 	
-	private function unexpectedError($data = null){
-		$this->handleOutput(500,$data);
+	private function handleOutput(Response $output){
+		switch($output->responseType){
+			case(ResponseType::PAGE):
+				OutputHandler::handlePageOutput($output);
+				break;
+			case(ResponseType::RAW):
+				OutputHandler::handleRawOutput($output);
+				break;
+			case(ResponseType::API):
+			default:
+				OutputHandler::handleAPIOutput($output);
+				break;
+		}
+	}
+	
+	private function unexpectedError(){
+		$this->handleOutput(DefaultAPIResponses::ServerError());
 	}
 	
 	private function includePageFile($file, $templateRequestHandler){
@@ -194,28 +255,57 @@ class RequestHandler{
 	}
 }
 
-//Just remember that, internally "bla.com/" will still be considered "bla.com/index.php" when checking the rewrite condition. 
-$path = parsePath();
-$requestArgs = array();
+/*
+ * For all intents and purposes, this is the public static void main() function.
+ * Everything relating to actual functionality begins here, with the exception of
+ *   the error handling and call of this function, all of which takes place
+ *   just following this function's body. 
+ */
+function runPageLogicProcedure(){
+	//Just remember that, internally "bla.com/" will still be considered "bla.com/index.php" when checking the rewrite condition. 
+	$path = parsePath();
+	$requestArgs = array();
 
-if(($rewrite = getRewritePath($path)) !== false){ //If this requested URL is being handled as a rewrite page
-	list($file,$groups) = $rewrite; //Get the file system file name , and the regex groups from the regex that matched this request. 
+	if(($rewrite = getRewritePath($path)) !== false){ //If this requested URL is being handled as a rewrite page
+		list($file,$groups) = $rewrite; //Get the file system file name , and the regex groups from the regex that matched this request. 
+		
+		$path = $file; //Update the request path with the file system file (as defined in $REWRITE_RULES in config.php).
+		$requestArgs = array_merge($requestArgs,$groups);
+	}
+
+	if($rewrite === false && REWRITE_ONLY){
+		OutputHandler::handleAPIOutput(DefaultAPIResponses::NotFound());
+	}
+	else{
+		$request = cleanPath($path);
+		if($request === false){
+			OutputHandler::handleAPIOutput(DefaultAPIResponses::NotFound());
+		}
+		else{
+			if($request == '/' || $request == '' || 
+				(REQUEST_PHP_EXTENSION !== '.php' && $request === 'index.php') // The fun case of a non-'.php' extension,
+																			   // But with support for apache rewrite 'some.website/' compatibility.
+			){ $request = cleanPath('index'.REQUEST_PHP_EXTENSION); }
+
+			$Handler = new RequestHandler();
+			$Handler->setRequestArgs($requestArgs);
+			$Handler->executeRequest($request);
+		}
+	}
+}
+
+/*
+ * Error handling and execution procedure starting point.
+ */
+try{
+	runPageLogicProcedure(); //GO
+}
+catch(\Exception $e){ //We fucked up. 
+	Log::error('An otherwise unhandled exception has occurred.',$e->__toString());
 	
-	$path = $file; //Update the request path with the file system file (as defined in $REWRITE_RULES in config.php).
-	$requestArgs = array_merge($requestArgs,$groups);
-}
-$request = cleanPath($path);
-if($request === false){
-	OutputHandler::handleOutput(404);
-}
-else{
-	if($request == '/'){ $request = cleanPath('index.php'); }
-
-	$Handler = new RequestHandler();
-	$Handler->setRequestArgs($requestArgs);
-	$Handler->executeRequest($request);
+	OutputHandler::handleAPIOutput(DefaultAPIResponses::ServerError());
 }
 
-$endTime = microtime(true);
-//debug(sprintf('<br />Execution time: %5f seconds',($endTime - $startTime)));
+/*$endTime = microtime(true);
+debug(sprintf('<br />Execution time: %5f seconds',($endTime - $startTime)));*/
 ?>

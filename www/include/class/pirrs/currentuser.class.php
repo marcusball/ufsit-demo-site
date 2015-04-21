@@ -1,7 +1,9 @@
 <?php
+namespace pirrs;
 class CurrentUser extends User{	
 	private $_isLoggedIn = false; //If the user has been validated as being logged in.
 	private $_hasCheckedAuthentication = false; //If the class has checked yet whether the user is logged in. 
+	
 	
 	/*
 	 * Constructor for the Authentication class
@@ -11,7 +13,7 @@ class CurrentUser extends User{
 			session_start();
 		}
 		
-		$this->dbCon = getDatabaseController();
+		$this->dbCon = ResourceManager::getDatabaseController();
 		
 		$this->checkAuthentication();
 		if($this->isLoggedIn()){
@@ -22,7 +24,7 @@ class CurrentUser extends User{
 	}
 	
 	private function checkAuthentication(){
-		$this->_isLoggedIn = $this->hasAuthentication();
+		$this->_isLoggedIn = $this->hasOAuthAuthentication() || $this->hasAuthentication();
 		$this->_hasCheckedAuthentication = true;
 	}
 	
@@ -42,6 +44,11 @@ class CurrentUser extends User{
 		
 		$this->setClassCredentials($_SESSION['USER_ID']);
 		return true;
+	}
+	
+	private function hasOAuthAuthentication(){
+		/* Implement code to check OAuth credentials here */
+		return false;
 	}
 	
 	private function isValidUser($uid){

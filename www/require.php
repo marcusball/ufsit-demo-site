@@ -1,4 +1,7 @@
 <?php
+namespace pirrs;
+use \PDO;
+
 /** Functions and definitions that will be included for every page **/
 require 'config.php';
 
@@ -14,10 +17,20 @@ function init(){
 	$classPath = dirname(__FILE__) . PATH_CLASS; //Get the path to our .class.php files 
 	set_include_path(get_include_path() . PATH_SEPARATOR . $classPath); //Add that path to the include path
 	
-	spl_autoload_extensions('.class.php'); //Auto-load any of our .class.php classes
+	spl_autoload_extensions('.class.php,.php'); //Auto-load any of our .class.php classes
 	spl_autoload_register();
-	
 	require_once 'password.php'; 
+	//require_once 'vendor/HTMLPurifier/HTMLPurifier.auto.php';
+
+	//Initialize the logging object
+	$logOverrides = array();
+	if(defined('SERVER_LOG_PATH_ERRORS')){
+		$logOverrides['error'] = SERVER_LOG_PATH_ERRORS; 
+	}
+	if(defined('SERVER_LOG_PATH_WARNINGS')){
+		$logOverrides['warning'] = SERVER_LOG_PATH_WARNINGS;
+	}
+	Log::construct(SERVER_LOG_PATH,$logOverrides);
 }
 
 /*
@@ -25,37 +38,27 @@ function init(){
  * Use it for errors.
  * $description is for a written description of the problem.
  * $error is for the output of error functions.
+ * $debugIndex is the number of levels on the backtrace to use as the calling information. 
+ *      ex: When $debugIndex = 0, the file path that gets logged is the file in which "logError()" appears. 
+ *          While, when $debugIndex = 1, the file path that is logged is the file which called the function that contains logError() 
+ *          Note, if the value is higher than the level returned by debug_backtrace, then it will decrement this value until a valid level is found.
  */
-function logError($description, $error){
-	$debug = debug_backtrace();
-	if(isset($debug[0])){
-		$data = sprintf("[%s][%s][%s] (%s): %s %s\n",
-			'error',
-			date('D, j M Y, \a\t g:i:s A'),
-			$_SERVER['REMOTE_ADDR'],
-			($debug[0]['file'].':'.$debug[0]['line']),
-			$description,
-			$error
-		);
-		file_put_contents(SERVER_LOG_PATH_ERRORS, $data, FILE_APPEND);
-	}
+function logError($description, $error, $debugIndex = 1){
+	Log::warning('logError() is depreciated! Please use Log::error().');
+	Log::error($description, $error, $debugIndex);
 }
 
 /*
  * Nice little log function for warnings.
+ * $description is for a written description of the problem.
+ * $debugIndex is the number of levels on the backtrace to use as the calling information. 
+ *      ex: When $debugIndex = 0, the file path that gets logged is the file in which "logError()" appears. 
+ *          While, when $debugIndex = 1, the file path that is logged is the file which called the function that contains logError() 
+ *          Note, if the value is higher than the level returned by debug_backtrace, then it will decrement this value until a valid level is found.
  */
-function logWarning($description){
-	$debug = debug_backtrace();
-	if(isset($debug[0])){
-		$data = sprintf("[%s][%s][%s] (%s): %s\n",
-			'warning',
-			date('D, j M Y, \a\t g:i:s A'),
-			$_SERVER['REMOTE_ADDR'],
-			$debug[0]['file'].':'.$debug[0]['line'],
-			$description
-		);
-		file_put_contents(SERVER_LOG_PATH_WARNINGS, $data, FILE_APPEND);
-	}
+function logWarning($description, $debugIndex = 1){
+	Log::warning('logWarning() is depreciated! Please use Log::warning().');
+	Log::warning($description, $debugIndex);
 }
 
 /*
@@ -65,76 +68,78 @@ function logWarning($description){
 function es($message){
 	echo htmlspecialchars($message);
 }
-
 function debug($message){
-	echo $message . '<br />';
+	if(is_bool($message)){
+		echo (($message === true)?'TRUE':'FALSE').' <br />';
+	}
+	else{
+		echo $message . '<br />';
+	}
 }
 
-/*
- * Connects to a PDO database and returns an instance of DatabaseController, from databasecontroller.php
- * DO NOT call this function directly to access the database. 
- * This file calls it (in getDatabaseController() ONLY), and maintains a reference to the value.
- * Call getDatabaseController() to get a reference to it. 
- */
-function SQLConnect(){
-	try {
-		$SQLCON = new DatabaseController(DB_PDO_NAME.':host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-		$SQLCON->setPDOAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+class ResourceManager{
+	/** Create an SQL connection **/
+	private static $SQLCON;
+	private static$USER;
+	private static $FORMKEYMAN;
+
+	/*
+	 * Connects to a PDO database and returns an instance of DatabaseController, from databasecontroller.php
+	 * DO NOT call this function directly to access the database. 
+	 * This file calls it (in getDatabaseController() ONLY), and maintains a reference to the value.
+	 * Call getDatabaseController() to get a reference to it. 
+	 */
+	public static function SQLConnect(){
+		try {
+			self::$SQLCON = new DatabaseController();
+			self::$SQLCON->setPDOAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			
+			define('HAS_DATABASE',true);
+			return self::$SQLCON;
+		}
+		catch(PDOException $e){
+			logError("Could not select database (".DB_NAME.").",$e->getMessage(),time());
+		}
 		
-		define('HAS_DATABASE',true);
-		return $SQLCON;
+		define('HAS_DATABASE',false);
+		return new NoDatabaseController();
 	}
-	catch(PDOException $e){
-		logError("Could not select database (".DB_NAME.").",$e->getMessage(),time());
-	}
-	
-	define('HAS_DATABASE',false);
-	return new NoDatabaseController();
-}
 
-/*
- * Access method for receiving a reference to the database controller (DatabaseController).
- */
-function getDatabaseController(){
-	global $SQLCON;
-	if($SQLCON !== null){
-		//echo 'giving current dbCon';
-		return $SQLCON;
+	/*
+	 * Access method for receiving a reference to the database controller (DatabaseController).
+	 */
+	public static function getDatabaseController(){
+		if(self::$SQLCON == null){
+			//echo 'giving current dbCon';
+			self::$SQLCON = self::SQLConnect();
+		}
+		return self::$SQLCON;
 	}
-	else{
-		return SQLConnect();
-	}
-}
 
-/*
- * Access method for receiving a reference to the CurrentUser object. 
- */
-function getCurrentUser(){
-	global $USER;
-	if($USER !== null){
-		return $USER;
+	/*
+	 * Access method for receiving a reference to the CurrentUser object. 
+	 */
+	public static function getCurrentUser(){
+		if(self::$USER == null){
+			self::$USER = new CurrentUser();
+		}
+		return self::$USER;
 	}
-	else{
-		return new CurrentUser();
-	}
-}
 
-/*
- * Access method for receiving a reference to the FormKeyManager object.
- */
-function getFormKeyManager(){
-	global $FORMKEYMAN;
-	if($FORMKEYMAN !== null){
-		return $FORMKEYMAN;
-	}
-	else{
-		return new FormKeyManager();
+	/*
+	 * Access method for receiving a reference to the FormKeyManager object.
+	 */
+	public static function getFormKeyManager(){
+		if(self::$FORMKEYMAN == null){
+			self::$FORMKEYMAN = new FormKeyManager();
+		}
+		return self::$FORMKEYMAN;
 	}
 }
 
 function parsePath($withQueryArgs = true){
 	//http://stackoverflow.com/questions/16388959/url-rewriting-with-php
-	$uri = rtrim( dirname($_SERVER["SCRIPT_NAME"]), '/' );
+	$uri = rtrim( dirname($_SERVER['SCRIPT_NAME']), '/' );
 	$uri = '/' . trim( str_replace( $uri, '', $_SERVER['REQUEST_URI'] ), '/' );
 	$uri = urldecode( $uri );
 	if(!$withQueryArgs){
@@ -149,7 +154,8 @@ function parsePath($withQueryArgs = true){
 function cleanPath($path){
 	if($path == '/') return $path;
 	
-	$matchVal = preg_match('#^/?(?:(?\'path\'.+)\.php)?(?:\?.*)?$#i',$path,$matches);
+	$phpExt = str_replace('.','\.',REQUEST_PHP_EXTENSION); //Convert something like '.php' to '\.php'
+	$matchVal = preg_match('#^/?(?:(?\'path\'[^\?]+)'.$phpExt.')?(?:\?.*)?$#i',$path,$matches);
 	if($matchVal === 0 || $matchVal === false){
 		return false;
 	}
@@ -169,9 +175,18 @@ function cleanPath($path){
 function getRewritePath($path){
 	global $REWRITE_RULES; //get rewrite rules from config.php
 	foreach($REWRITE_RULES as $file=>$rule){
-		$match = preg_match('#'.$rule.'#i',$path,$matches);
-		if($match !== 0 && $match !== false){
-			return array($file,$matches);
+		if($file != null && $rule != null){ //If there is a full rewrite rule; "file.php" => "/some/rewrite/rule"
+			$match = preg_match('#'.$rule.'#i',$path,$matches);
+			if($match !== 0 && $match !== false){
+				return array($file,$matches);
+			}
+		}
+		else{ //Otherwise
+			if($rule === null){ //in the case of: "file.php" => null
+				if($path == $file || $path == '/'.$file || ($path === '/' && $file === 'index.php')){ //if path == "file.php" OR path == "/file.php" OR (path == / and file is "index.php")
+					return array($file,array());
+				}
+			}
 		}
 	}
 	return false;
@@ -181,13 +196,19 @@ function getCurrentUrl(){
 	return parsePath();
 }
 
+/*
+ * Util function. Returns true if an $object has the same class (from get_class) as specified by $type.
+ * However, this removes namespaces and their slashes ('\') before comparing. 
+ */
+function typeIs($object, $type){
+	$type = get_class($object);
+	$namespaces = explode('\\',$type); //Get rid of namespaces and their slashes. 
+	$objectClass = end($namespaces); //get the last item (the class name)
+	
+	return ($type === $objectClass);
+}
 
 /** Imports and includes **/
 init(); //Import stuff
-
-/** Create an SQL connection **/
-$SQLCON = SQLConnect();
-$USER = null; //Keep these in global scope
-$FORMKEYMAN = null;
-		
+	
 ?>

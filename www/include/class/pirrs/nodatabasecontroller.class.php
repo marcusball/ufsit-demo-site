@@ -1,4 +1,5 @@
 <?php
+namespace pirrs;
 class NoDatabaseController{
     public function __set($name, $value)
     {

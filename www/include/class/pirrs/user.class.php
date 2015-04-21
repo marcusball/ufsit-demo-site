@@ -1,14 +1,15 @@
 <?php
+namespace pirrs;
 class User extends UserRow{
 	protected $dbCon;
 	private $userData;
 	
 	public function __construct(){
-		if(func_num_args() < 1 && $this->uid === null && get_class($this) !== 'CurrentUser'){ //uid was not supplied to constructor, and $uid has not already been set (as would be done if object created by function like pdo->fetchObject). 
+		if(func_num_args() < 1 && $this->uid === null && get_class($this) !== __NAMESPACE__.'\CurrentUser'){ //uid was not supplied to constructor, and $uid has not already been set (as would be done if object created by function like pdo->fetchObject). 
 			throw new Exception('User object expects at least one argument!');
 			return;
 		}
-		$this->dbCon = getDatabaseController();
+		$this->dbCon = ResourceManager::getDatabaseController();
 
 		if(func_num_args() >= 1){
 			for($i=0;$i<func_num_args();$i++){
@@ -52,7 +53,7 @@ class User extends UserRow{
 	
 	public function getFullName(){
 		if($this->userData !== null){
-			return $this->_userData['full_name'];
+			return $this->userData['full_name'];
 		}
 		return '';
 	}
