@@ -89,7 +89,7 @@ class RequestHandler{
 					//Okay, time to display a page
 					//pageFunctionObject will be of type PageObject
 					$this->pageFunctionObject = new $requestClass(); //Instantiate our page handling object
-					$this->pageFunctionObject->setRequestArgs($this->reqArgs);
+					$this->pageFunctionObject->request->setArgs($this->reqArgs);
 					
 					if(call_user_func(array($this->pageFunctionObject,REQUEST_FUNC_REQUIRE_LOGGED_IN)) === true && !$this->user->isLoggedIn()){ //If the user must be logged in to view this page, and the user is not logged in
 						$this->handleOutput(DefaultAPIResponses::Unauthorized()); //not authorized
