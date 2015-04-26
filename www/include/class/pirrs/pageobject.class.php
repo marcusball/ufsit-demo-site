@@ -26,7 +26,7 @@ class PageObject extends RequestObject{
 			$this->request = new PageRequest();
 		}
 		if($this->response == null){
-			$this->response = new PageResponse();
+			$this->setResponseType(ResponseType::PAGE);
 		}
 	}
 	

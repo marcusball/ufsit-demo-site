@@ -20,7 +20,40 @@ class OutputHandler{
 		ob_start();
 	}
 	public static function handlePageOutput(Response $output){
+        //If we're NOT returning raw content 
+        //(raw content would be just returning anything that was echoed
+        //  during execution. No special handling will be used.)
 		if(!$output->rawContent){
+            // First we'll output the response code
+            $statusCode = $output->getStatusCode();
+            $statusMessage = '';
+            
+            //If we have a predefined message corresponding to the response status code
+            if(isset(self::$statusCodes[$statusCode])){
+                $statusMessage = self::$statusCodes[$statusCode];
+            }
+            else{
+                //Otherwise, we'll use whatever the response object gave as a message
+                $statusMessage = $output->getStatusCodeMessage();
+                
+            }
+            
+            //Send the HTTP header
+            header(sprintf('HTTP/1.1 %.03d %s',$statusCode,$statusMessage));
+            
+            
+            //Set the content type header, if not already set.
+            if(!$output->headers->issetHeader('Content-Type')){
+                $output->headers->set('Content-Type','text/html'); 
+            }
+            
+            //Send the remaining headers 
+            $headers = $output->headers->getAll();
+            foreach($headers as $header => $headerValue){
+                header(sprintf('%s: %s',$header,$headerValue));
+            } 
+            
+            
 			switch($output->getStatusCode()){
 				case 200:
 					static::handleSuccess();
@@ -43,6 +76,9 @@ class OutputHandler{
 				case 404: 
 					static::handleNotFound();
 					break;
+                case 405:
+                    static::handleMethodNotAllowed();
+                    break;
 			}
 			
 			$endTime = microtime(true);
@@ -158,5 +194,10 @@ class OutputHandler{
 		ob_end_clean();
 		header('Location: '.str_replace(array('\r','\n'),'',$url));
 	}
+    
+    private static function handleMethodNotAllowed(){
+        ob_end_clean();
+        echo '<h1>405 Method Not Allowed</h1>';
+    }
 }
 ?>

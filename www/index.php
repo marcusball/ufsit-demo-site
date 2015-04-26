@@ -97,13 +97,34 @@ class RequestHandler{
 					}
 					else{
 						$preexResult = call_user_func(array($this->pageFunctionObject,REQUEST_FUNC_PRE_EXECUTE)); //Call the page specific pre-execution function. 
-						if($preexResult !== false){ //If preExecute() returns false, cancel loading of template
+						if($preexResult !== false){ //If preExecute() returns false, cancel loading of template\
+                            
+                            //Before we execute the template, we'll call the function cooresponding to the request method
+                            switch($this->pageFunctionObject->request->getMethod()){
+                                default:
+                                case(RequestMethod::GET):
+                                    call_user_func(array($this->pageFunctionObject,'executeGet'));
+                                    break;
+                                case RequestMethod::POST:
+                                    call_user_func(array($this->pageFunctionObject,'executePost'));
+                                    break;
+                                case RequestMethod::PUT:
+                                    call_user_func(array($this->pageFunctionObject,'executePut'));
+                                    break;
+                                case RequestMethod::DELETE:
+                                    call_user_func(array($this->pageFunctionObject,'executeDelete'));
+                                    break;
+                            }
+                        
+                            //Okay, time to execute the template code
 							if($requestedTemplate !== false){ //If we have a template file, import that.
 								$this->includePageFile($requestedTemplate,$this->pageFunctionObject);
 							}
 							
 						}
-						call_user_func(array($this->pageFunctionObject,REQUEST_FUNC_POST_EXECUTE)); //Page specific post-execution function. 
+                        
+                        //Page specific post-execution function to wrap everything up.
+						call_user_func(array($this->pageFunctionObject,REQUEST_FUNC_POST_EXECUTE)); 
 					}
 				}
 			}
@@ -137,7 +158,7 @@ class RequestHandler{
 				call_user_func(array($this->pageFunctionObject,REQUEST_FUNC_POST_EXECUTE)); //Page specific post-execution function. 
 			}
 			$this->internalPostExecute(); //Call the global RequestHandler postExecute function. Perform any tasks we want to always occur after processing, but before sending output.
-            $this->handleOutput($this->pageFunctionObject->response);
+			$this->handleOutput($this->pageFunctionObject->response);
 		}
 		else{ //Since we know we have either the script or the template, then, here, we must have only the template.
 			$this->requestType = RequestType::HTML;

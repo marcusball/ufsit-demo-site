@@ -8,10 +8,10 @@ class APIObject extends RequestObject{
 			$arg = func_get_arg($i);
 			if(is_object($arg)){ 			//If this argument is of class-type object (basically anything not a primative data type). 
 				$class = get_class($arg); 	//Get the actual class of the argument
-				if($class == 'APIRequest'){		//Hey look! It's our SQL object
+				if($class == APIRequest::class){	
 					$this->request = $arg; 	//We should save this. 
 				}
-				elseif($class == 'APIResponse'){
+				elseif($class == APIRequest::class){
 					$this->response = $arg;
 				}
 			}
@@ -21,7 +21,7 @@ class APIObject extends RequestObject{
 			$this->request = new APIRequest();
 		}
 		if($this->response == null){
-			$this->response = new APIResponse();
+			$this->setResponseType(ResponseType::API);
 		}
 	}
 }

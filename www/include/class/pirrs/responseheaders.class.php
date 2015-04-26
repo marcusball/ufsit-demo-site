@@ -1,6 +1,6 @@
 <?php
 namespace pirrs;
-class APIResponseHeaders{
+class ResponseHeaders{
 	protected $headers;
 	
 	public function __construct(){
@@ -62,7 +62,7 @@ class APIResponseHeaders{
 		return isset($this->headers[$header]);
 	}
 	
-	public function apply(APIResponseHeaders $headers){
+	public function apply(ResponseHeaders $headers){
 		foreach($headers->headers as $header => $value){
 			$this->set($header,$value);
 		}

@@ -38,17 +38,14 @@ class Log{
 	 */
 	public static function error($description, $error = '', $debugIndex = 1){
 		if($debugIndex < 0){
-			throw new \InvalidArgumentException('$debugIndex must be greater than, or equal to, zero!');
-		}
-        if($debugIndex > 10){
-			throw new \InvalidArgumentException('$debugIndex must be less than ten!');
+			throw new InvalidArgumentException('$debugIndex must be greater than, or equal to, zero!');
 		}
 		$debug = debug_backtrace();
 		
 		while((!isset($debug[$debugIndex]) || !isset($debug[$debugIndex]['file'])) && $debugIndex > 0){ 
 			//Loop while the debug backtrace does not contain the number of calls equal to $debugIndex, 
 			//  or we're on an object item (so there's no file and line number), and $debugIndex is >= 0. 
-            
+			
 			$debugIndex -= 1; //Decrement debugIndex in hopes of finding a valid index.
 		}
 		
@@ -109,7 +106,7 @@ class Log{
 	 *     While, when $debugIndex = 1, the file path that is logged is the file which called the function that contains logError() 
 	 *     Note, if the value is higher than the level returned by debug_backtrace, then it will decrement this value until a valid level is found.
 	 */
-	public static function debug($description, $debugIndex = 1){
+	public static function debug($description, $debugIndex = 0){
 		if($debugIndex < 0){
 			throw new InvalidArgumentException('$debugIndex must be greater than, or equal to, zero!');
 		}

@@ -11,18 +11,19 @@ class Response{
 	public $responseType;
 	
 	public function __construct(){
-		$this->headers = new APIResponseHeaders();
+		$this->headers = new ResponseHeaders();
 	}
 	
 	/*
 	 * This is basically a copy constructor. 
 	 * Copies the data from $apiResponse into this.
 	 * Note: will overwrite headers, but will not delete 
-	 * existing headers that don't exist in the given $apiResponse.
+	 *   existing headers that don't exist in the given $apiResponse.
+     * This also does NOT copy the $responseType value.
 	 */
 	public function apply(Response $apiResponse,$forceOverwrite = false){
 		$this->headers->apply($apiResponse->headers);
-		$this->setStatusCode($apiResponse->getStatusCode());
+		$this->setStatusCode($apiResponse->getStatusCode(), $this->statusCodeMes);
 		
 		if($forceOverwrite || $apiResponse->hasContent()){
 			$this->setContent($apiResponse->getContent());
