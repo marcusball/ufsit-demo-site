@@ -3,6 +3,12 @@ template
 
 An unnamed PHP template system I'm writing. 
 
+# Setup, Requirements, and Notes
+## Requirements
+PHP, and Apache with mod_rewrite
+
+## Optional Requirements
+A [fork](https://github.com/marcusball/ohmy-auth) of [ohmy-auth](https://github.com/sudocode/ohmy-auth/) is included if you wish to enable OAuth2 client functionality. You could do OAuth1 client stuff, but all of the example code provided is for OAuth2. 
 
 # API Docs
 ## Basic Overview
@@ -54,7 +60,7 @@ This method is used to check if the uid (user id) stored in a user's session is 
 
 #### `CurrentUser::getUserInformation()`
 
-See [`User->getUserInformation()`](#usergetuserinformation)
+See [`User->getUserInformation()`](#usergetuserinformation).
 
 ### User 
 
