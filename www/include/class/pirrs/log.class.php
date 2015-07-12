@@ -132,6 +132,52 @@ class Log{
 		$data = self::indentNewLines($data);
 		file_put_contents(self::$warningLog, $data, FILE_APPEND);
 	}
+    
+    
+    public static function dump($variable, $debugIndex = 0){
+		if($debugIndex < 0){
+			throw new InvalidArgumentException('$debugIndex must be greater than, or equal to, zero!');
+		}
+		
+		$debug = debug_backtrace();
+		
+		while((!isset($debug[$debugIndex]) || !isset($debug[$debugIndex]['file'])) && $debugIndex > 0){ 
+				//Loop while the debug backtrace does not contain the number of calls equal to $debugIndex, 
+				//  or we're on an object item (so there's no file and line number), and $debugIndex is >= 0. 
+				
+				$debugIndex -= 1; //Decrement debugIndex in hopes of finding a valid index.
+			}
+		
+		$callLocation = self::cleanCallingFilePath($debug[$debugIndex]['file']).':'.$debug[$debugIndex]['line'];
+		$data = sprintf("[%s][%s][%s] (%s): %s\n",
+			'dump',
+			date('D, j M Y, \a\t g:i:s A'),
+			$_SERVER['REMOTE_ADDR'],
+			$callLocation,
+			var_export($variable, true)
+		);
+		
+		$data = self::indentNewLines($data);
+		file_put_contents(self::$warningLog, $data, FILE_APPEND);
+	}
+    
+    public static function trace($note){
+        $debugIndex = 0;
+        $debug = debug_backtrace();
+        $callLocation = self::cleanCallingFilePath($debug[$debugIndex]['file']).':'.$debug[$debugIndex]['line'];
+        
+		$data = sprintf("[%s][%s][%s] (%s): %s\n%s\n",
+			'trace',
+			date('D, j M Y, \a\t g:i:s A'),
+			$_SERVER['REMOTE_ADDR'],
+            $callLocation,
+			$note,
+			self::getPrintableDebugTrace()
+		);
+		
+		$data = self::indentNewLines($data);
+		file_put_contents(self::$warningLog, $data, FILE_APPEND);
+	}
 	
 	/*
 	 * Cleans the given filepath so it's nicely formatted for log output.
@@ -154,4 +200,24 @@ class Log{
 		$temp = preg_replace('/\n/',"\n    ",$message);
 		return preg_replace('/\n\s+$/',"\n",$temp);
 	}
+    
+    private static function getPrintableDebugTrace(){
+        $debug = debug_backtrace();
+        
+        $printable = "";
+        $indexShift = 2; //omit this many levels from the bottom of the trace (ignore this function). 
+        foreach($debug as $index=>$tracePoint){
+            if($index >= $indexShift){
+                //    #0 D:\Users\Marcus\Websites\pirrs\api\include\class\pirrs\databasecontroller.class.php(1791): PDOStatement->execute()\
+                $path = self::cleanCallingFilePath($tracePoint['file']);
+                $line = sprintf('    #%d %s(%d): %s()', 
+                    $index - $indexShift,
+                    $path, $tracePoint['line'],
+                    $tracePoint['function']
+                );
+                $printable .= $line . "\n";
+            }
+        }
+        return $printable;   
+    }
 } Log::construct(); //Call to initialize defaults. This must be here. 

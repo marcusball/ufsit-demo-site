@@ -60,7 +60,12 @@ class RequestHandler{
 		return array(false,false);
 	}
 	
+    /*
+     * Entry point for the RequestHandler. Determines expected file names, 
+     *   then hands them over to executePage().
+     */
 	public function executeRequest($requestedPage){
+        
 		list($requestedScript,$requestedTemplate) = $this->getRequestScript($requestedPage);
 		
 		if($requestedScript === false && $requestedTemplate === false){
@@ -92,7 +97,7 @@ class RequestHandler{
 					$this->pageFunctionObject->request->setArgs($this->reqArgs);
 					
 					if(call_user_func(array($this->pageFunctionObject,REQUEST_FUNC_REQUIRE_LOGGED_IN)) === true && !$this->user->isLoggedIn()){ //If the user must be logged in to view this page, and the user is not logged in
-						$this->handleOutput(DefaultAPIResponses::Unauthorized()); //not authorized
+						$this->handleOutput(DefaultResponses::Unauthorized()); //not authorized
 						return;
 					}
 					else{
@@ -118,7 +123,7 @@ class RequestHandler{
                         
                             //Okay, time to execute the template code
 							if($requestedTemplate !== false){ //If we have a template file, import that.
-								$this->includePageFile($requestedTemplate,$this->pageFunctionObject);
+								$this->pageFunctionObject->executeTemplate($requestedTemplate,$this);
 							}
 							
 						}
@@ -138,24 +143,30 @@ class RequestHandler{
 				$this->interalPreExecute(); //Call the global RequestHandler pre-execution function. Take care of anything that should happen before the page begins loading. 
 				$preexResult = call_user_func(array($this->pageFunctionObject,REQUEST_FUNC_PRE_EXECUTE)); //Call the page specific pre-execution function. 
 				
-				if($preexResult !== false){ //If preExecute() returns false, cancel loading of template
-					switch($this->pageFunctionObject->request->getMethod()){
-						default:
-						case(RequestMethod::GET):
-							call_user_func(array($this->pageFunctionObject,'executeGet'));
-							break;
-						case RequestMethod::POST:
-							call_user_func(array($this->pageFunctionObject,'executePost'));
-							break;
-						case RequestMethod::PUT:
-							call_user_func(array($this->pageFunctionObject,'executePut'));
-							break;
-						case RequestMethod::DELETE:
-							call_user_func(array($this->pageFunctionObject,'executeDelete'));
-							break;
-					}
-				}
-				call_user_func(array($this->pageFunctionObject,REQUEST_FUNC_POST_EXECUTE)); //Page specific post-execution function. 
+                if(call_user_func(array($this->pageFunctionObject,REQUEST_FUNC_REQUIRE_LOGGED_IN)) === true && !$this->user->isLoggedIn()){ //If the user must be logged in to view this page, and the user is not logged in
+                    $this->handleOutput(DefaultResponses::Login()); //not authorized
+                    return;
+                }
+                else{
+                    if($preexResult !== false){ //If preExecute() returns false, cancel loading of template
+                        switch($this->pageFunctionObject->request->getMethod()){
+                            default:
+                            case(RequestMethod::GET):
+                                call_user_func(array($this->pageFunctionObject,'executeGet'));
+                                break;
+                            case RequestMethod::POST:
+                                call_user_func(array($this->pageFunctionObject,'executePost'));
+                                break;
+                            case RequestMethod::PUT:
+                                call_user_func(array($this->pageFunctionObject,'executePut'));
+                                break;
+                            case RequestMethod::DELETE:
+                                call_user_func(array($this->pageFunctionObject,'executeDelete'));
+                                break;
+                        }
+                    }
+                    call_user_func(array($this->pageFunctionObject,REQUEST_FUNC_POST_EXECUTE)); //Page specific post-execution function. 
+                }
 			}
 			$this->internalPostExecute(); //Call the global RequestHandler postExecute function. Perform any tasks we want to always occur after processing, but before sending output.
 			$this->handleOutput($this->pageFunctionObject->response);
@@ -218,15 +229,15 @@ class RequestHandler{
 	
 	private function handleOutput(Response $output){
 		switch($output->responseType){
-			case(ResponseType::PAGE):
-				OutputHandler::handlePageOutput($output);
-				break;
 			case(ResponseType::RAW):
 				OutputHandler::handleRawOutput($output);
 				break;
 			case(ResponseType::API):
-			default:
 				OutputHandler::handleAPIOutput($output);
+				break;
+            		case(ResponseType::PAGE):
+			default:
+				OutputHandler::handlePageOutput($output);
 				break;
 		}
 	}
@@ -284,7 +295,7 @@ class RequestHandler{
  */
 function runPageLogicProcedure(){
 	//Just remember that, internally "bla.com/" will still be considered "bla.com/index.php" when checking the rewrite condition. 
-	$path = parsePath();
+	$path = parsePath(false);
 	$requestArgs = array();
 
 	if(($rewrite = getRewritePath($path)) !== false){ //If this requested URL is being handled as a rewrite page
@@ -309,7 +320,7 @@ function runPageLogicProcedure(){
 			){ $request = cleanPath('index'.REQUEST_PHP_EXTENSION); }
 
 			$Handler = new RequestHandler();
-			$Handler->setRequestArgs($requestArgs);
+			$Handler->setRequestArgs($requestArgs); //Args are any values pulled from named regex groups in configured rewrite rules.
 			$Handler->executeRequest($request);
 		}
 	}

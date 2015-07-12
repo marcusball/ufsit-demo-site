@@ -228,6 +228,54 @@ class DatabaseController{
 		}
 		return false;
 	}
+    
+    
+    /*
+     * Updates a specific user's oauth access token.
+     * $uid: the user id of to whom the access token belongs
+     * $accessToken: the oauth access token
+     * $expires: the integer representing the number of seconds
+     *   until the access token expires.
+     * returns true on success, false on error.
+     */
+    public function updateUserAccessToken($uid,$accessToken,$expires){
+        try{
+            $updateStatement = $this->sqlCon()->prepare('UPDATE users SET access_token=:token, access_expiration=:expire, access_updated=NOW() WHERE uid=:uid');
+            $updateStatement->bindParam(':token',$accessToken,PDO::PARAM_STR);
+            $updateStatement->bindParam(':expire',$expires,PDO::PARAM_INT);
+            $updateStatement->bindParam(':uid',$uid,PDO::PARAM_STR);
+            $updateStatement->execute();
+            if($updateStatement->rowCount() > 0){
+                return true;
+            }
+        }
+        catch(PDOException $e){
+            Log::error('Error updating user access token!',$e->getMessage());
+        }
+        return false;
+    }
+    
+    /*
+     * Updates a user's oauth refresh token.
+     * $uid: the user id of to whom the refresh token belongs
+     * $refreshToken: the oauth refresh token
+     * returns true on success, false on error.
+     */
+    public function updateUserRefreshToken($uid,$refreshToken){
+        try{
+            $updateStatement = $this->sqlCon()->prepare('UPDATE users SET refresh_token=:token WHERE uid=:uid');
+            $updateStatement->bindParam(':token',$refreshToken,PDO::PARAM_STR);
+            $updateStatement->bindParam(':uid',$uid,PDO::PARAM_STR);
+            $updateStatement->execute();
+            if($updateStatement->rowCount() > 0){
+                return true;
+            }
+        }
+        catch(PDOException $e){
+            Log::error('Error updating user refresh token!',$e->getMessage());
+        }
+        return false;
+    }
 	
 	/***********************************************************/
 	/* User information methods                                */
@@ -252,6 +300,61 @@ class DatabaseController{
 		}
 		return false;
 	}
+    
+    /*
+     * Fetches the OAuth access token for the user specified by $uid.
+     * returns a \pirrs\user\AccessToken object, or false on error.
+     */
+    public function getUserAccessToken($uid){
+        try{
+            //Select 
+            $tokenQuery = $this->sqlCon()->prepare('
+                SELECT 
+                    users.uid, users.access_token AS token,
+                    users.access_expiration AS expiration,
+                    users.access_updated AS updated
+                FROM users 
+                WHERE users.uid=:uid
+            ');
+            
+            $tokenQuery->bindParam(':uid',$uid,PDO::PARAM_STR);
+            $tokenQuery->execute();
+            
+            $tokenQuery->setFetchMode(PDO::FETCH_CLASS,\pirrs\user\AccessToken::class);
+            $token = $tokenQuery->fetch();
+
+            if($token !== false){
+                return $token;
+            }
+        }
+        catch(PDOException $e){
+            Log::error('Error fetching user access token!',$e->getMessage());
+        }
+        return false;
+    }
+    
+    /*
+     * Fetches the OAuth refresh token for the user specified by $uid
+     * returns the a \pirrs\user\RefreshToken object if a refresh token exists
+     * returns false on error, or if no refresh token is present.
+     */
+    public function getUserRefreshToken($uid){
+        try{
+            $tokenQuery = $this->sqlCon()->prepare('SELECT uid, refresh_token AS token FROM users WHERE uid=:uid');
+            $tokenQuery->bindParam(':uid',$uid,PDO::PARAM_STR);
+            $tokenQuery->execute();
+            
+            $tokenQuery->setFetchMode(PDO::FETCH_CLASS,\pirrs\user\RefreshToken::class);
+            $token = $tokenQuery->fetch();
+            if($token !== false && $token->token != ''){
+                return $token;
+            }
+        }
+        catch(PDOException $e){
+            Log::error('Error fetching user refresh token!',$e->getMessage());
+        }
+        return false;
+    }
 	
 	/*
 	 * Returns the string of the full name of the user corresponding to the given uid.

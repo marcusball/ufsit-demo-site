@@ -47,11 +47,9 @@ class Validation{
 		//$invalidChars = '/[\u0000-\u0020\!\"\#\$\%\&\(\)\*\+\,0-9:;\<\=\>\?\@\[\\\]\^_\`\{\|\}\~\u00A0-\u00BF]/u';
 		$validName = '~^(?:[\p{L}\p{Mn}\p{Pd}\']++\s?)++$~u'; //don't forget to double check with the regex used in cleaner.php
 		if(preg_match($validName,$name) !== 1){
-			debug('name does not match acceptable pattern');
 			return false;
 		}
 		if(!self::isValidLength($name,$maxLen,$minLen)){
-			debug('name is not valid length');
 			return false;
 		}
 		if($clean){

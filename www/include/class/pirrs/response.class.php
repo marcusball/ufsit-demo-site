@@ -97,5 +97,53 @@ class Response{
 	public function hasErrors(){
 		return isset($this->errors) && count($this->errors) > 0;
 	}
+    
+    /*
+     * Forward to a different page, using a 302 redirect.
+     * $url is the url to which to forward.
+     * $data (optional, default null) should be an array
+     *   containing url query parameters in key=>value format.
+     *   May also be passed simply as the string to append to $url.
+     */
+    public function forwardTo($url, $data = null){
+        if($data != null){
+            $hasPreexistingQuery = (strpos($url,'?') !== false); //If the $url already has a query string (indicated by the existence of a '?' character).
+            if(is_string($data)){ //If the data variable is a string
+                if($hasPreexistingQuery){
+                    if(substr($data,0,1) === '?'){ //If the string does start with a query question mark
+                        $url = $url . '&' . substr($data,1); //Remote the question mark and append
+                    }
+                    elseif(substr($data,0,1) === '&'){ //If the string does not start with a query question mark
+                        $url = $url . $data;
+                    }
+                    else{
+                        $url = $url . '&' . $data;
+                    }
+                }
+                else{
+                    if(substr($data,0,1) === '?'){ //If the string does start with a query question mark
+                        $url = $url . $data;
+                    }
+                    elseif(substr($data,0,1) === '&'){ //If the string does not start with a query question mark
+                        $url = $url . '?' . substr($data,1);
+                    }
+                    else{
+                        $url = $url . '?' . $data;
+                    }
+                }
+            }
+            elseif(is_array($data)){
+                $queryArray = array();
+                foreach($data as $key=>$value){
+                    $queryArray[] = $key . '=' . $value;
+                }
+                $queryString = implode('&',$queryArray);
+                $url = $url . ((!$hasPreexistingQuery)?'?':'&') . $queryString;
+            }
+        }
+        $this->responseType = ResponseType::PAGE;
+        $this->setStatusCode(302);
+        $this->setContent($url);
+    }
 }
 ?>

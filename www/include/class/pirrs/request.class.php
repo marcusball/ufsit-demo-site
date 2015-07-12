@@ -108,7 +108,7 @@ class Request{
 	 * returns true iff isset is true for $_REQUEST[$param[$i]] and NONE are arrays.
 	 * returns list of missing req values if false.
 	 */
-	protected function issetReqList(){
+	public function issetReqList(){
 		$toTest = func_get_args();
 		$missing = array();
 		$isset = true;
@@ -129,7 +129,7 @@ class Request{
 	 * returns true iff isset is true for $_REQUEST[$param[$i]] and ALL are arrays.
 	 * returns list of missing req values if false.
 	 */
-	protected function issetReqArrayList(){
+	public function issetReqArrayList(){
 		$toTest = func_get_args();
 		$missing = array();
 		$isset = true;
@@ -174,6 +174,60 @@ class Request{
 		}
 		return null;
 	}
+    
+    /*
+     * When given a number of string req keys as parameters, this will
+     *   return an array populated with the corresponding req values.
+     * If a there does not exist a value corresponding to an input key,
+     *   null will be returned in its place. 
+     * Note: If the value corresponding to a given is an array, 
+     *   it will NOT be returned, null will be given. This function will not
+     *   return any arrays as values. If you are expecting an array,
+     *   use the getReqArrayList(...) function. 
+     * The intent of this is to enable code such as this:
+     *   list($value1,$value2,..) = $request->getReqList('key1','key2',..);
+     */
+    public function getReqList(){
+		$toGet = func_get_args();
+        $toReturn = array();
+		foreach($toGet as $testArg){
+			$isset = isset($this->req[$testArg]) && !is_array($this->req[$testArg]);
+			if($isset){
+                $toReturn[] = $this->req[$testArg];
+            }
+            else{
+                $toReturn[] = null;
+            }
+		}
+		return $toReturn;
+	}
+    
+    /*
+     * When given a number of string req keys as parameters, this will
+     *   return an array populated with the corresponding req values.
+     * If a there does not exist a value corresponding to an input key,
+     *   null will be returned in its place. 
+     * Note: If the value corresponding to a given is NOT an array, 
+     *   it will NOT be returned, null will be given. This function will ONLY
+     *   return a value if it is an array. If you are expecting a non-array,
+     *   use the getReqList(...) function. 
+     * The intent of this is to enable code such as this:
+     *   list($valueArray1,$valueArray2,..) = $request->getReqList('key1','key2',..);
+     */
+    public function getReqArrayList(){
+		$toGet = func_get_args();
+        $toReturn = array();
+		foreach($toGet as $testArg){
+			$isset = isset($this->req[$testArg]) && is_array($this->req[$testArg]);
+			if($isset){
+                $toReturn[] = $this->req[$testArg];
+            }
+            else{
+                $toReturn[] = null;
+            }
+		}
+		return $toReturn;
+	}
 	
 	/*
 	 * Assuming a form is submitted, with a form key named according to FORM_KEY_DEFAULT_INPUT_NAME,
@@ -182,6 +236,18 @@ class Request{
 	public function isValidFormSubmission(){
 		$manager = ResourceManager::getFormKeyManager();
 		return $manager->isValidFormRequest();
+	}
+    
+    /*
+     * Get the current url, encoded in a safely-printable fashion.
+     * $append: extra data to append to the url (optional).
+     */
+    public function getSafeUrl($append = null){
+		$url = getCurrentUrl();
+		if($append !== null){
+			$url .= $append;
+		}
+		return htmlentities(urlencode($url));
 	}
 }
 ?>

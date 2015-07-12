@@ -79,6 +79,9 @@ class OutputHandler{
                 case 405:
                     static::handleMethodNotAllowed();
                     break;
+                case 500:
+                    static::handleServerError();
+                    break;
 			}
 			
 			$endTime = microtime(true);
@@ -91,9 +94,9 @@ class OutputHandler{
 		}
 	}
 	public static function handleAPIOutput(Response $output){
-		//ob_end_clean(); //Throw away any written text
-		$text = ob_get_clean();
-		echo $text;
+		ob_end_clean(); //Throw away any written text
+		// $text = ob_get_clean();
+		// echo $text;
 		
 		/* First we'll output the response code */
 		$statusCode = $output->getStatusCode();
@@ -187,7 +190,7 @@ class OutputHandler{
 	
 	private static function handleNotAuthorized(){
 		ob_end_clean();
-		header('Location: /login.php');
+		echo 'You\'re not authorized to view this page!';
 	}
 	
 	private static function handleTemporaryRedirect($url){
@@ -198,6 +201,10 @@ class OutputHandler{
     private static function handleMethodNotAllowed(){
         ob_end_clean();
         echo '<h1>405 Method Not Allowed</h1>';
+    }
+    private static function handleServerError(){
+        ob_end_clean();
+        echo '<h1>500 Internal Server Error</h1>';
     }
 }
 ?>

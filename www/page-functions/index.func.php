@@ -12,6 +12,7 @@ class IndexPage extends PageObject{
 		
 		<a href="/test/3">Test page with url rewrite</a>.
 		<a href="/test2.php">Test page with no PageObject attached to it</a>.
+        <a href="/apitest.php?data=hello">A test API page that responds with JSON data</a>
 	<?php
 	}
 }

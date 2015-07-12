@@ -57,14 +57,5 @@ class PageObject extends RequestObject{
 	public function requireLoggedIn(){
 		return false;
 	}
-	
-
-	public function getSafeUrl($append = null){
-		$url = getCurrentUrl();
-		if($append !== null){
-			$url .= $append;
-		}
-		return htmlentities(urlencode($url));
-	}
 }
 ?>

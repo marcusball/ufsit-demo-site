@@ -77,68 +77,6 @@ function debug($message){
 	}
 }
 
-class ResourceManager{
-	/** Create an SQL connection **/
-	private static $SQLCON;
-	private static $USER;
-	private static $FORMKEYMAN;
-
-	/*
-	 * Connects to a PDO database and returns an instance of DatabaseController, from databasecontroller.php
-	 * DO NOT call this function directly to access the database. 
-	 * This file calls it (in getDatabaseController() ONLY), and maintains a reference to the value.
-	 * Call getDatabaseController() to get a reference to it. 
-	 */
-	public static function SQLConnect(){
-        if(DB_ENABLE){
-            try {
-                self::$SQLCON = new DatabaseController();
-                self::$SQLCON->setPDOAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                
-                define('HAS_DATABASE',true);
-                return self::$SQLCON;
-            }
-            catch(\PDOException $e){
-                Log::error("Could not select database (".DB_NAME.").",$e->getMessage());
-            }
-        }
-		
-		define('HAS_DATABASE',false);
-		return new NoDatabaseController();
-	}
-
-	/*
-	 * Access method for receiving a reference to the database controller (DatabaseController).
-	 */
-	public static function getDatabaseController(){
-		if(self::$SQLCON == null){
-			//echo 'giving current dbCon';
-			self::$SQLCON = self::SQLConnect();
-		}
-		return self::$SQLCON;
-	}
-
-	/*
-	 * Access method for receiving a reference to the CurrentUser object. 
-	 */
-	public static function getCurrentUser(){
-		if(self::$USER == null){
-			self::$USER = new CurrentUser();
-		}
-		return self::$USER;
-	}
-
-	/*
-	 * Access method for receiving a reference to the FormKeyManager object.
-	 */
-	public static function getFormKeyManager(){
-		if(self::$FORMKEYMAN == null){
-			self::$FORMKEYMAN = new FormKeyManager();
-		}
-		return self::$FORMKEYMAN;
-	}
-}
-
 function parsePath($withQueryArgs = true){
 	//http://stackoverflow.com/questions/16388959/url-rewriting-with-php
 	$uri = rtrim( dirname($_SERVER['SCRIPT_NAME']), '/' );
@@ -194,8 +132,8 @@ function getRewritePath($path){
 	return false;
 }
 
-function getCurrentUrl(){
-	return parsePath();
+function getCurrentUrl($withQueryArgs = true){
+	return parsePath($withQueryArgs);
 }
 
 /*
