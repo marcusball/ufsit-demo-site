@@ -80,8 +80,15 @@ function debug($message){
 function parsePath($withQueryArgs = true){
 	//http://stackoverflow.com/questions/16388959/url-rewriting-with-php
 	$uri = rtrim( dirname($_SERVER['SCRIPT_NAME']), '/' );
-	$uri = '/' . trim( str_replace( $uri, '', $_SERVER['REQUEST_URI'] ), '/' );
+    
+    $dirPos = strpos($_SERVER['REQUEST_URI'], $uri); //Get the position of the current file directory name in the url
+    if($dirPos !== false){
+        $uri = '/' . trim( substr_replace($_SERVER['REQUEST_URI'], '', $dirPos, strlen($uri)), '/' ); //Remove only the first occurrence of the current directory
+        //http://stackoverflow.com/a/1252710/451726
+    }
+    
 	$uri = urldecode( $uri );
+    
 	if(!$withQueryArgs){
 		$matchVal = preg_match('#^(?\'path\'[^\?]*)(?:\?.*)?$#i',$uri,$matches);
 		if($matchVal !== 0 && $matchVal !== false){
