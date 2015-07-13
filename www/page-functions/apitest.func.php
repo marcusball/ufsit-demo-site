@@ -21,7 +21,7 @@ class Page extends APIObject{
             'method'=>'GET',
             'message' => 'you requested this via POST',
             'data' => isset($_GET['data']) ? $_GET['data'] : 'You did not pass anything in the \'data\' url parameter.',
-            'stuff' => isset($_POST['stuff']) ? $_GET['stuff'] : 'You did not POST anything in the \'stuff\' parameter.',
+            'stuff' => isset($_POST['stuff']) ? $_POST['stuff'] : 'You did not POST anything in the \'stuff\' parameter.',
         );
         $this->response->setContent($data);  
     }
