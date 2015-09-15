@@ -120,13 +120,13 @@ function cleanPath($path){
         if($dirMatchVal === 0 || $dirMatchVal === false){
             return false;
         }
-        //If a path was found
+        /*//If a path was found
         if(isset($matches['path'])){
             //Append a slash to indicate it's a directory
             if(substr($matches['path'],-1) !== '/'){
                 $matches['path'] = $matches['path'] . '/';
             }
-        }
+        }*/
 	}
 	
 	//If we get to here, we know the pattern matches

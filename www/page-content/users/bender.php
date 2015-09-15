@@ -732,6 +732,8 @@ plugged into a receptacle located on the underside of Bender's body.</span></li>
 </div><div class="drawer position-fixed text references"><button class="cancel icon icon-cancel icon-12px"></button>
 <h3></h3>
 
+
+<a href="/secretchallenge3.php"></a>
 </div></div></div>
 		<script>if(window.mw){
 mw.config.set({"wgBackendResponseTime":285,"wgHostname":"mw1041"});

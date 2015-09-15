@@ -6,6 +6,14 @@
  */
 $GlobalPage->includeFile('header.php'); ?>
                     <article>
+                        <?php if(isset($this->message)){ ?>
+                            <div class="alert <?php echo (($this->win)?'alert-success':'alert-danger'); ?>">
+                                <?php echo $this->message; ?>
+                                
+                                 <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                            </div>
+                        <?php } ?>
+                    
                         <h2>Create a new blog post</h2>
                         <h3><small>Signed in as <a href="#guest">guest</a></small></h3>
                         

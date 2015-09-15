@@ -49,7 +49,7 @@ class RequestHandler{
 		if($requested != null){
 			$includeFile = INCLUDE_PATH_PHP.$requested.INCLUDE_PHP_EXTENSION;
 			$templateFile = INCLUDE_PATH_TEMPLATE.$requested.INCLUDE_TEMPLATE_EXTENSION;
-			
+
 			$hasPhp = file_exists($includeFile);
 			$hasTemplate = file_exists($templateFile);
 			
@@ -310,7 +310,7 @@ function runPageLogicProcedure(){
 	}
 	else{
 		$request = cleanPath($path);
-        
+
 		if($request === false){
 			OutputHandler::handleAPIOutput(DefaultAPIResponses::NotFound());
 		}
