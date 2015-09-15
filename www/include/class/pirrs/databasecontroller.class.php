@@ -1,41 +1,37 @@
 <?php
-class DBController{
-	private $sqlCon;
-	
+namespace pirrs;
+use \PDO;
+
+class DatabaseController{
+	private $_sqlCon; //DO NOT ACCESS DIRECTLY! Use $this->sqlCon()
+	// add other private database connections here	
 	public function __construct(){
-		$dsn = "";
-		$username = "";
-		$password = "";
-		$driver_options = null;
-		for($i=0;$i<func_num_args();$i++){	//Loop through all of the arguments provided to the instruction ("RequestObject($arg1,$arg2,...)").
-			switch($i){
-				case 0:
-					$dsn = func_get_arg($i);
-					continue;
-				case 1:
-					$username = func_get_arg($i);
-					continue;
-				case 2:
-					$password = func_get_arg($i);
-					continue;
-				case 3:
-					$driver_options = func_get_arg($i);
-					continue;
-				default:
-			}
-		} 
-		
-		$this->sqlCon = new PDO($dsn,$username,$password,$driver_options);
 	}
 	public function setPDOAttribute($attribute,$value){
-		return $this->sqlCon->setAttribute($attribute,$value);
+		return $this->sqlCon()->setAttribute($attribute,$value);
 	}
 	
-	public function getSQLTimeStamp($time = null){
+	public static function getSQLTimeStamp($time = null){
 		if($time == null) $time = time();
 		return date('Y-m-d H:i:s',$time);
 	}
 	
+	public function getSQLConnection(){
+		return $this->sqlCon();
+	}
+	
+	private function sqlCon(){
+		if($this->_sqlCon == null){
+			$this->_sqlCon = new PDO(DB_PDO_NAME.':host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD, null);
+		}
+		return $this->_sqlCon;
+	}
+	
+	/* 
+	 * Add other private databaseConnect functions here
+	 * Return the connection object, then save to private member.
+	 */
+
 	/***********************************************************/
 	/* DO NOT MODIFY THE CODE ABOVE THIS SECTION               */
 	/* Add in your own database access methods below this point*/
@@ -48,7 +44,7 @@ class DBController{
 	
 	public function isValidUid($uid){
 		try{
-			$uidCheck = $this->sqlCon->prepare('SELECT uid FROM users WHERE uid=:uid');
+			$uidCheck = $this->sqlCon()->prepare('SELECT uid FROM users WHERE uid=:uid');
 			$uidCheck->execute(array(':uid'=>$uid));
 			
 			if(($uidReturn = $uidCheck->fetch(PDO::FETCH_ASSOC)) !== false){
@@ -81,22 +77,21 @@ class DBController{
 	 */
 	public function registerNewUser($fullName,$email,$password){
 		$passwordHash = password_hash($password.PASSWORD_SALT, PASSWORD_BCRYPT, array("cost" => AUTH_HASH_COMPLEXITY));
-		$nowDatetime = $this->getSQLTimeStamp();
-		$insertQuery="INSERT INTO users (email,full_name,password) VALUES (:email,:fullname,:password);";
+		$nowDatetime = self::getSQLTimeStamp();
 		try{
-			$this->sqlCon->beginTransaction(); //Registering a new user means a lot of different inserts, so we want to make sure either all or nothing occurs. 
+			$this->sqlCon()->beginTransaction(); //Registering a new user means a lot of different inserts, so we want to make sure either all or nothing occurs. 
 			
 			
 			//Let's insert the user into the user table
-			$regStatement = $this->sqlCon->prepare($insertQuery);
+			$regStatement = $this->sqlCon()->prepare($insertQuery);
 			$regStatement->execute(array(':email'=>$email,':fullname'=>$fullName,':password'=>$passwordHash));
 			
-			$this->sqlCon->commit();
+			$this->sqlCon()->commit();
 			
 			$uidValue = $this->getUidFromEmail($email); //get the ID we just inserted, because lastInsertId can be weird sometimes.
 		}
 		catch(PDOException $e){
-			$this->sqlCon->rollBack();
+			$this->sqlCon()->rollBack();
 			logError("An error occurred while registering a new user! Code: {$e->getCode()}.",$e->getMessage());
 			return false;
 		}
@@ -115,7 +110,7 @@ class DBController{
 	public function changeUserPassword($uid,$newPassword){
 		$passwordHash = password_hash($newPassword.PASSWORD_SALT, PASSWORD_BCRYPT, array('cost' => AUTH_HASH_COMPLEXITY));
 		try{
-			$updateQuery = $this->sqlCon->prepare('UPDATE users SET password=:password WHERE uid=:uid');
+			$updateQuery = $this->sqlCon()->prepare('UPDATE users SET password=:password WHERE uid=:uid');
 			$updateQuery->execute(array(':uid'=>$uid,':password'=>$passwordHash));
 			if($updateQuery->rowCount() == 1){
 				return true;
@@ -201,7 +196,7 @@ class DBController{
 					
 		$hashUpdate = "UPDATE users SET password=:hash WHERE uid=:uid;";
 		try{
-			$hashUpdateStatement = $this->sqlCon->prepare($hashUpdate);
+			$hashUpdateStatement = $this->sqlCon()->prepare($hashUpdate);
 			$hashUpdateStatement->execute(array(':hash'=>$hash,':uid'=>$uid));
 		}
 		catch(PDOException $e){
@@ -216,7 +211,7 @@ class DBController{
 	public function getUidFromEmail($email){
 		$userCheckQuery = "SELECT uid FROM users WHERE email=:email LIMIT 1;"; //Make sure this keeps LIMIT 1
 		try{
-			$statement = $this->sqlCon->prepare($userCheckQuery);
+			$statement = $this->sqlCon()->prepare($userCheckQuery);
 			$statement->execute(array(':email' => $email));
 			
 			//If the query returned rows, then someone IS registered using this email
@@ -233,6 +228,54 @@ class DBController{
 		}
 		return false;
 	}
+    
+    
+    /*
+     * Updates a specific user's oauth access token.
+     * $uid: the user id of to whom the access token belongs
+     * $accessToken: the oauth access token
+     * $expires: the integer representing the number of seconds
+     *   until the access token expires.
+     * returns true on success, false on error.
+     */
+    public function updateUserAccessToken($uid,$accessToken,$expires){
+        try{
+            $updateStatement = $this->sqlCon()->prepare('UPDATE users SET access_token=:token, access_expiration=:expire, access_updated=NOW() WHERE uid=:uid');
+            $updateStatement->bindParam(':token',$accessToken,PDO::PARAM_STR);
+            $updateStatement->bindParam(':expire',$expires,PDO::PARAM_INT);
+            $updateStatement->bindParam(':uid',$uid,PDO::PARAM_STR);
+            $updateStatement->execute();
+            if($updateStatement->rowCount() > 0){
+                return true;
+            }
+        }
+        catch(PDOException $e){
+            Log::error('Error updating user access token!',$e->getMessage());
+        }
+        return false;
+    }
+    
+    /*
+     * Updates a user's oauth refresh token.
+     * $uid: the user id of to whom the refresh token belongs
+     * $refreshToken: the oauth refresh token
+     * returns true on success, false on error.
+     */
+    public function updateUserRefreshToken($uid,$refreshToken){
+        try{
+            $updateStatement = $this->sqlCon()->prepare('UPDATE users SET refresh_token=:token WHERE uid=:uid');
+            $updateStatement->bindParam(':token',$refreshToken,PDO::PARAM_STR);
+            $updateStatement->bindParam(':uid',$uid,PDO::PARAM_STR);
+            $updateStatement->execute();
+            if($updateStatement->rowCount() > 0){
+                return true;
+            }
+        }
+        catch(PDOException $e){
+            Log::error('Error updating user refresh token!',$e->getMessage());
+        }
+        return false;
+    }
 	
 	/***********************************************************/
 	/* User information methods                                */
@@ -244,7 +287,7 @@ class DBController{
 	public function getUserInformation($uid){
 		$userQuery = 'SELECT uid, email, full_name FROM users WHERE uid=:uid LIMIT 1;';
 		try{
-			$userStatement = $this->sqlCon->prepare($userQuery);
+			$userStatement = $this->sqlCon()->prepare($userQuery);
 			$userStatement->bindParam(':uid',$uid,PDO::PARAM_INT);
 			$userStatement->execute();
 			
@@ -257,6 +300,61 @@ class DBController{
 		}
 		return false;
 	}
+    
+    /*
+     * Fetches the OAuth access token for the user specified by $uid.
+     * returns a \pirrs\user\AccessToken object, or false on error.
+     */
+    public function getUserAccessToken($uid){
+        try{
+            //Select 
+            $tokenQuery = $this->sqlCon()->prepare('
+                SELECT 
+                    users.uid, users.access_token AS token,
+                    users.access_expiration AS expiration,
+                    users.access_updated AS updated
+                FROM users 
+                WHERE users.uid=:uid
+            ');
+            
+            $tokenQuery->bindParam(':uid',$uid,PDO::PARAM_STR);
+            $tokenQuery->execute();
+            
+            $tokenQuery->setFetchMode(PDO::FETCH_CLASS,\pirrs\user\AccessToken::class);
+            $token = $tokenQuery->fetch();
+
+            if($token !== false){
+                return $token;
+            }
+        }
+        catch(PDOException $e){
+            Log::error('Error fetching user access token!',$e->getMessage());
+        }
+        return false;
+    }
+    
+    /*
+     * Fetches the OAuth refresh token for the user specified by $uid
+     * returns the a \pirrs\user\RefreshToken object if a refresh token exists
+     * returns false on error, or if no refresh token is present.
+     */
+    public function getUserRefreshToken($uid){
+        try{
+            $tokenQuery = $this->sqlCon()->prepare('SELECT uid, refresh_token AS token FROM users WHERE uid=:uid');
+            $tokenQuery->bindParam(':uid',$uid,PDO::PARAM_STR);
+            $tokenQuery->execute();
+            
+            $tokenQuery->setFetchMode(PDO::FETCH_CLASS,\pirrs\user\RefreshToken::class);
+            $token = $tokenQuery->fetch();
+            if($token !== false && $token->token != ''){
+                return $token;
+            }
+        }
+        catch(PDOException $e){
+            Log::error('Error fetching user refresh token!',$e->getMessage());
+        }
+        return false;
+    }
 	
 	/*
 	 * Returns the string of the full name of the user corresponding to the given uid.
@@ -272,7 +370,7 @@ class DBController{
 	/* Database Methods                                        */
 	/***********************************************************/
 	public function getLastErrorCode(){
-		return $this->sqlCon->errorCode();
+		return $this->sqlCon()->errorCode();
 	}
 }
 ?>

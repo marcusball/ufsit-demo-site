@@ -1,25 +1,15 @@
 <?php
-
-/*
- * The properties in this class should correspond with those in your users table in your database.
- */
-class UserRow{ 
-	public $uid;
-	protected $full_name;
-	protected $email;
-	protected $password;
-}
-
+namespace pirrs;
 class User extends UserRow{
-	/** TODO **/
 	protected $dbCon;
-	private $tempData;
+	private $userData;
+	
 	public function __construct(){
-		if(func_num_args() < 1 && $this->uid === null && get_class($this) !== 'CurrentUser'){ //uid was not supplied to constructor, and $uid has not already been set (as would be done if object created by function like pdo->fetchObject). 
+		if(func_num_args() < 1 && $this->uid === null && get_class($this) !== __NAMESPACE__.'\CurrentUser'){ //uid was not supplied to constructor, and $uid has not already been set (as would be done if object created by function like pdo->fetchObject). 
 			throw new Exception('User object expects at least one argument!');
 			return;
 		}
-		$this->dbCon = getDatabaseController();
+		$this->dbCon = ResourceManager::getDatabaseController();
 
 		if(func_num_args() >= 1){
 			for($i=0;$i<func_num_args();$i++){
@@ -40,11 +30,15 @@ class User extends UserRow{
 	}
 	
 	public function getUserInformation(){
-		$tempData = $this->dbCon->getUserInformation($this->uid);
-		if($tempData !== false){
-			$this->_userData = $tempData;
-			return true;
+		if(HAS_DATABASE){
+			$tempData = $this->dbCon->getUserInformation($this->uid);
+			if($tempData !== false){
+				$this->userData = $tempData;
+				return true;
+			}
 		}
+		//If there is no database, then there is no user data to fetch.
+		//This function should be modified as necessary on a per-application basis.
 		return false;
 	}
 	
@@ -58,7 +52,10 @@ class User extends UserRow{
 	}
 	
 	public function getFullName(){
-		return $this->_userData['full_name'];
+		if($this->userData !== null){
+			return $this->userData['full_name'];
+		}
+		return '';
 	}
 }
 

@@ -1,11 +1,5 @@
 <?php 
-/*******************************************/
-/* This script requires HTMLPurifier.      */
-/* Download it from //htmlpurifier.org/    */
-/* Place htmlpurifier folder in /include/  */
-/*******************************************/
-
-require_once 'htmlpurifier/HTMLPurifier.auto.php';
+namespace pirrs;
 
 class Cleaner{
 	private static $purifier;
@@ -74,7 +68,7 @@ class Cleaner{
 	 * If self::$config is null, it will create a new HTMLPurifier_Config and assign it to self::$config.
 	 */
 	private static function getConfig(){
-		$config = HTMLPurifier_Config::createDefault();
+		$config = \HTMLPurifier_Config::createDefault();
 		$config->set('URI.Base', '//'.SITE_DOMAIN);
 		$config->set('URI.MakeAbsolute', true);
 		$config->set('HTML.Allowed', '');
@@ -87,13 +81,13 @@ class Cleaner{
 	 * If self::$purifier is null, it will create a new one using the return from self::getConfig().
 	 * If $config IS supplied, it will (always) create a new HTMLPurifier object using that configuration. 
 	 */ 
-	private static function getPurifier(HTMLPurifier_Config $config = null){
+	private static function getPurifier(\HTMLPurifier_Config $config = null){
 		if($config !== null){ //If an HTMLPurifier config is supplied. 
-			self::$purifier = new HTMLPurifier($config);
+			self::$purifier = new \HTMLPurifier($config);
 		}
 		else{ //otherwise we'll use the previously used purifier, or a new one using the previous config. 
 			if(self::$purifier === null){
-				self::$purifier = new HTMLPurifier(self::getConfig());
+				self::$purifier = new \HTMLPurifier(self::getConfig());
 			}
 		}
 		return self::$purifier;

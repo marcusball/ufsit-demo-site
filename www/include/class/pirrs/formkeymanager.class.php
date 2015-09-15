@@ -1,4 +1,8 @@
 <?php
+namespace pirrs;
+
+//The default name to use when outputting a form key input, and when reading POST data. 
+define('FORM_KEY_DEFAULT_INPUT_NAME','form_key'); 
 class FormKeyManager{
 	private $hasReturnedKey = false;
 	function __construct(){
@@ -59,12 +63,12 @@ class FormKeyManager{
 	
 	public function isValidFormKey($formKey){
 		if($formKey == null){ return false; }
-		if($formKey == $this->getFormKey()){ 
+		if($formKey === $this->getFormKey()){ 
 			$this->renewFormKey();
 			return true;
 		}
 		else{
-			if($formKey == $this->getOldFormKey()){ 
+			if($formKey === $this->getOldFormKey()){ 
 				//It's old, but it's the most recent old one.
 				//For now, we'll accept this, because it will be less likely 
 				//to screw with slightly stale pages/tabs on the client's browser.
@@ -75,5 +79,23 @@ class FormKeyManager{
 		}
 		return false;
 	}
+	
+	/*
+	 * Reads a key from POST data and returns true if it is a valid form key. 
+	 * Uses FORM_KEY_DEFAULT_INPUT_NAME as default key for $_POST[], but can be overwriten with $inputName.
+	 */
+	public function isValidFormRequest($inputName = FORM_KEY_DEFAULT_INPUT_NAME){
+		if(isset($_POST[$inputName])){
+			$key = $_POST[$inputName];
+			return $this->isValidFormKey($key);
+		}
+		return false;
+	}
+	
+	public function writeFormInput(){ 
+		$formName = FORM_KEY_DEFAULT_INPUT_NAME;
+		$input = sprintf('<input type="hidden" name="%s" value="%s" />',htmlentities($formName),htmlentities($this->getFormKey()));
+		echo $input;
+	}	
 }
 ?>

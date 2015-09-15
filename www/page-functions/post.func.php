@@ -1,5 +1,6 @@
 <?php
-class IndexPage extends PageObject{
+namespace pirrs;
+class PostPage extends PageObject{
 	public function pageTitle(){
 		echo "This is a website";
 	}

@@ -1,38 +1,36 @@
 <?php
+namespace pirrs;
+use \PDO;
+
 /** Functions and definitions that will be included for every page **/
 require 'config.php';
 
-$path = dirname(__FILE__) . '/include'; 
+$path = dirname(__FILE__) . PATH_INCLUDE; 
 set_include_path(get_include_path() . PATH_SEPARATOR . $path); //Adds the './include' folder to the include path
 // That doesn't explain much, but basically, if I say "include 'file.php';", 
 // it now searches './include' for file.php, as well as the default include locations.
 
 /*
  * Includes all of the necessary helper classes and files.
- * $initLight is basically used to allow for cases where one may not want to include all of the files.
- * This is mostly for cases where custom files are used (not the default PageObject classes and templates),
- * where one may wish to access resources from this framework, without creating a page handled by this framework. 
  */
-function init($initLight = false){
-	require_once 'databasecontroller.php';
-	require_once 'currentuser.php';
-	if(!$initLight){ //If we want to include everything. 
-		require_once 'output.php';
-		require_once 'pageobj.php';
-		require_once 'nopage.php';
+function init(){
+	$classPath = dirname(__FILE__) . PATH_CLASS; //Get the path to our .class.php files 
+	set_include_path(get_include_path() . PATH_SEPARATOR . $classPath); //Add that path to the include path
+	
+	spl_autoload_extensions('.class.php,.php'); //Auto-load any of our .class.php classes
+	spl_autoload_register();
+	require_once 'password.php'; 
+	//require_once 'vendor/HTMLPurifier/HTMLPurifier.auto.php';
 
-		require_once 'user.php';
-		require_once 'formkeys.php';
-		require_once 'password.php';
-		
-		/* 
-		 * cleaner.php requires HTMLPurifier. 
-		 * Download it from //htmlpurifier.org/ and place the htmlpurifier folder in /include/ 
-		 */
-		//require_once 'cleaner.php'; 
+	//Initialize the logging object
+	$logOverrides = array();
+	if(defined('SERVER_LOG_PATH_ERRORS')){
+		$logOverrides['error'] = SERVER_LOG_PATH_ERRORS; 
 	}
-	
-	
+	if(defined('SERVER_LOG_PATH_WARNINGS')){
+		$logOverrides['warning'] = SERVER_LOG_PATH_WARNINGS;
+	}
+	Log::construct(SERVER_LOG_PATH,$logOverrides);
 }
 
 /*
@@ -40,37 +38,27 @@ function init($initLight = false){
  * Use it for errors.
  * $description is for a written description of the problem.
  * $error is for the output of error functions.
+ * $debugIndex is the number of levels on the backtrace to use as the calling information. 
+ *      ex: When $debugIndex = 0, the file path that gets logged is the file in which "logError()" appears. 
+ *          While, when $debugIndex = 1, the file path that is logged is the file which called the function that contains logError() 
+ *          Note, if the value is higher than the level returned by debug_backtrace, then it will decrement this value until a valid level is found.
  */
-function logError($description, $error){
-	$debug = debug_backtrace();
-	if(isset($debug[0])){
-		$data = sprintf("[%s][%s][%s] (%s): %s %s\n",
-			'error',
-			date('D, j M Y, \a\t g:i:s A'),
-			$_SERVER['REMOTE_ADDR'],
-			($debug[0]['file'].':'.$debug[0]['line']),
-			$description,
-			$error
-		);
-		file_put_contents(SERVER_LOG_PATH_ERRORS, $data, FILE_APPEND);
-	}
+function logError($description, $error, $debugIndex = 1){
+	Log::warning('logError() is depreciated! Please use Log::error().');
+	Log::error($description, $error, $debugIndex);
 }
 
 /*
  * Nice little log function for warnings.
+ * $description is for a written description of the problem.
+ * $debugIndex is the number of levels on the backtrace to use as the calling information. 
+ *      ex: When $debugIndex = 0, the file path that gets logged is the file in which "logError()" appears. 
+ *          While, when $debugIndex = 1, the file path that is logged is the file which called the function that contains logError() 
+ *          Note, if the value is higher than the level returned by debug_backtrace, then it will decrement this value until a valid level is found.
  */
-function logWarning($description){
-	$debug = debug_backtrace();
-	if(isset($debug[0])){
-		$data = sprintf("[%s][%s][%s] (%s): %s\n",
-			'warning',
-			date('D, j M Y, \a\t g:i:s A'),
-			$_SERVER['REMOTE_ADDR'],
-			$debug[0]['file'].':'.$debug[0]['line'],
-			$description
-		);
-		file_put_contents(SERVER_LOG_PATH_ERRORS, $data, FILE_APPEND);
-	}
+function logWarning($description, $debugIndex = 1){
+	Log::warning('logWarning() is depreciated! Please use Log::warning().');
+	Log::warning($description, $debugIndex);
 }
 
 /*
@@ -80,83 +68,30 @@ function logWarning($description){
 function es($message){
 	echo htmlspecialchars($message);
 }
-
 function debug($message){
-	if(!IS_PRODUCTION){
+	if(is_bool($message)){
+		echo (($message === true)?'TRUE':'FALSE').' <br />';
+	}
+	else{
 		echo $message . '<br />';
-	}
-}
-
-/*
- * Connects to a PDO database and returns an instance of DBController, from databasecontroller.php
- * DO NOT call this function directly to access the database. 
- * This file calls it (in getDatabaseController() ONLY), and maintains a reference to the value.
- * Call getDatabaseController() to get a reference to it. 
- */
-function SQLConnect(){
-	try {
-		$SQLCON = new DBController(DB_PDO_NAME.':host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
-		$SQLCON->setPDOAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-		return $SQLCON;
-	}
-	catch(PDOException $e){
-		logError("Could not select database (".DB_NAME.").",$e->getMessage(),time());
-	}
-	require_once 'nodatabasecontroller.php';
-	return new NoDatabaseController();
-}
-
-/*
- * Access method for receiving a reference to the database controller (DBController).
- */
-function getDatabaseController(){
-	global $SQLCON;
-	if($SQLCON !== null){
-		//echo 'giving current dbCon';
-		return $SQLCON;
-	}
-	else{
-		logWarning('Require.php generating new Database Controller. This shouldn\'t happen usually.');
-		return SQLConnect();
-	}
-}
-
-/*
- * Access method for receiving a reference to the CurrentUser object. 
- */
-function getCurrentUser(){
-	global $USER;
-	if($USER !== null){
-		return $USER;
-	}
-	else{
-		logWarning('Require.php generating new CurrentUser. This shouldn\'t happen usually.');
-		return new CurrentUser();
-	}
-}
-
-/*
- * Access method for receiving a reference to the FormKeyManager object.
- */
-function getFormKeyManager(){
-	global $FORMKEYMAN;
-	if($FORMKEYMAN !== null){
-		return $FORMKEYMAN;
-	}
-	else{
-		logWarning('Require.php generating new Form Key Manager. This shouldn\'t happen usually.');
-		return new FormKeyManager();
 	}
 }
 
 function parsePath($withQueryArgs = true){
 	//http://stackoverflow.com/questions/16388959/url-rewriting-with-php
-	$uri = rtrim( dirname($_SERVER["SCRIPT_NAME"]), '/' );
-	$uri = '/' . trim( str_replace( $uri, '', $_SERVER['REQUEST_URI'] ), '/' );
+	$uri = rtrim( dirname($_SERVER['SCRIPT_NAME']), '/' );
+    $uri = str_replace('\\','/',$uri); //Replace the windows directory character ('\') with a '/'
+    
+    $dirPos = strpos($_SERVER['REQUEST_URI'], $uri); //Get the position of the current file directory name in the url
+    if($dirPos !== false){
+        $uri = '/' . trim( substr_replace($_SERVER['REQUEST_URI'], '', $dirPos, strlen($uri)), '/' ); //Remove only the first occurrence of the current directory
+        //http://stackoverflow.com/a/1252710/451726
+    }
+    
 	$uri = urldecode( $uri );
+    
 	if(!$withQueryArgs){
 		$matchVal = preg_match('#^(?\'path\'[^\?]*)(?:\?.*)?$#i',$uri,$matches);
-
 		if($matchVal !== 0 && $matchVal !== false){
 			return $matches['path'];
 		}
@@ -167,7 +102,8 @@ function parsePath($withQueryArgs = true){
 function cleanPath($path){
 	if($path == '/') return $path;
 	
-	$matchVal = preg_match('#^/?(?:(?\'path\'.+)\.php)?(?:\?.*)?$#i',$path,$matches);
+	$phpExt = str_replace('.','\.',REQUEST_PHP_EXTENSION); //Convert something like '.php' to '\.php'
+	$matchVal = preg_match('#^/?(?:(?\'path\'[^\?]+)'.$phpExt.')?(?:\?.*)?$#i',$path,$matches);
 	if($matchVal === 0 || $matchVal === false){
 		return false;
 	}
@@ -187,9 +123,18 @@ function cleanPath($path){
 function getRewritePath($path){
 	global $REWRITE_RULES; //get rewrite rules from config.php
 	foreach($REWRITE_RULES as $file=>$rule){
-		$match = preg_match('#'.$rule.'#i',$path,$matches);
-		if($match !== 0 && $match !== false){
-			return array($file,$matches);
+		if($file != null && $rule != null){ //If there is a full rewrite rule; "file.php" => "/some/rewrite/rule"
+			$match = preg_match('#'.$rule.'#i',$path,$matches);
+			if($match !== 0 && $match !== false){
+				return array($file,$matches);
+			}
+		}
+		else{ //Otherwise
+			if($rule === null){ //in the case of: "file.php" => null
+				if($path == $file || $path == '/'.$file || ($path === '/' && $file === 'index.php')){ //if path == "file.php" OR path == "/file.php" OR (path == / and file is "index.php")
+					return array($file,array());
+				}
+			}
 		}
 	}
 	return false;
@@ -199,21 +144,19 @@ function getCurrentUrl($withQueryArgs = true){
 	return parsePath($withQueryArgs);
 }
 
+/*
+ * Util function. Returns true if an $object has the same class (from get_class) as specified by $type.
+ * However, this removes namespaces and their slashes ('\') before comparing. 
+ */
+function typeIs($object, $type){
+	$type = get_class($object);
+	$namespaces = explode('\\',$type); //Get rid of namespaces and their slashes. 
+	$objectClass = end($namespaces); //get the last item (the class name)
+	
+	return ($type === $objectClass);
+}
 
 /** Imports and includes **/
-global $INIT_LIGHT; //Get the INIT_LIGHT global variable. This should be set before 'require.php' is included. 
-$INIT_LIGHT = ($INIT_LIGHT === true)?true:false; //Make sure this is false if the variable is anything other than true (null/non-bool).
-init($INIT_LIGHT); //Import stuff
-
-/** Create an SQL connection **/
-require_once 'nodatabasecontroller.php';
-$SQLCON = new NoDatabaseController(); //SQLConnect();
-$USER = new CurrentUser(); //Keep these in global scope
-$FORMKEYMAN = null; //Keep these in global scope
-
-if($INIT_LIGHT === false){
-	global $FORMKEYMAN;
-	$FORMKEYMAN = new FormKeyManager();
-}
-		
+init(); //Import stuff
+	
 ?>
