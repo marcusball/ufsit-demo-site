@@ -1,4 +1,5 @@
 <?php
+namespace ufsit;
 class PrivateIndex extends PageObject{
 	private $realm = 'Super secret area';
 	private $secret = 'Is this necessary? Probably not.';
@@ -12,10 +13,10 @@ class PrivateIndex extends PageObject{
 	public function pageTitle(){ echo '[PRIVATE]'; }
 	
 	public function preExecute(){
-		if(!$this->user->isLoggedIn()){
+		if(!$this->request->user->isLoggedIn()){
 			//If the user is logged out, but we're still getting the logout request,
 			//then we should redirect the user to the normal, non-logout page.
-			if($this->issetReq('logout')){
+			if($this->request->issetReq('logout')){
 				header('Location: '.getCurrentUrl(false));
 				return false;
 			}
@@ -30,7 +31,7 @@ class PrivateIndex extends PageObject{
 			
 			
 			//Is something wrong with the auth data, or does the username not exist?
-			elseif(!($data = $this->httpDigestParse($_SERVER['PHP_AUTH_DIGEST'])) || !isset($this->users[$data['username']])){
+			elseif(!($data = $this->httpDigestParse($_SERVER['PHP_AUTH_DIGEST'])) || !isset($this->request->users[$data['username']])){
 				$this->httpDigestPrompt();
 			
 				echo "Incorrect credentials! Your IP address {$_SERVER['REMOTE_ADDR']} has been logged and reported to the FBI.";
@@ -38,7 +39,7 @@ class PrivateIndex extends PageObject{
 			}
 
 			// generate the valid response
-			$A1 = md5($data['username'] . ':' . $this->realm . ':' . $this->users[$data['username']]);
+			$A1 = md5($data['username'] . ':' . $this->realm . ':' . $this->request->users[$data['username']]);
 			$A2 = md5($_SERVER['REQUEST_METHOD'].':'.$data['uri']);
 			$valid_response = md5($A1.':'.$data['nonce'].':'.$data['nc'].':'.$data['cnonce'].':'.$data['qop'].':'.$A2);
 
@@ -49,13 +50,13 @@ class PrivateIndex extends PageObject{
 				return false;
 			}
 			else{
-				$this->user->giveCredentials($data['username']);
+				$this->request->user->giveCredentials($data['username']);
 			}
 		}
 		else{
 			//Is the user logged in, but requesting to logout?
-			if($this->issetReq('logout')){
-				$this->user->logOut();
+			if($this->request->issetReq('logout')){
+				$this->request->user->logOut();
 				
 				$this->httpDigestPrompt(); //Easiest way to tell the browser that you're "logged out" is to just say you're not authorized
 				echo 'You have logged out';
