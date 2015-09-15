@@ -1,5 +1,5 @@
 <?php
-namespace ufsit;
+namespace pirrs;
 use \PDO;
 
 /** Functions and definitions that will be included for every page **/
@@ -83,12 +83,15 @@ function parsePath($withQueryArgs = true){
     $uri = str_replace('\\','/',$uri); //Replace the windows directory character ('\') with a '/'
     
     //Make sure $uri is not empty, to avoid "Empty needle" warning
+    $dirPos = strpos($_SERVER['REQUEST_URI'],'/'); //If $uri is empty, then we're at the root; assume position of first '/' slash.
     if(isset($uri) && trim($uri) !== ''){
         $dirPos = strpos($_SERVER['REQUEST_URI'], $uri); //Get the position of the current file directory name in the url
-        if($dirPos !== false){
-            $uri = '/' . trim( substr_replace($_SERVER['REQUEST_URI'], '', $dirPos, strlen($uri)), '/' ); //Remove only the first occurrence of the current directory
-            //http://stackoverflow.com/a/1252710/451726
-        }
+    }
+    
+    //trim out the current file system directory, so we have a completely relative path to the requested file
+    if($dirPos !== false){
+        $uri = '/' . trim( substr_replace($_SERVER['REQUEST_URI'], '', $dirPos, strlen($uri)), '/' ); //Remove only the first occurrence of the current directory
+        //http://stackoverflow.com/a/1252710/451726
     }
     
 	$uri = urldecode( $uri );
@@ -104,9 +107,9 @@ function parsePath($withQueryArgs = true){
 
 function cleanPath($path){
 	if($path == '/') return $path;
-	$phpExt = str_replace('.','\.',REQUEST_PHP_EXTENSION); //Convert something like '.php' to '\.php'
-    
-    //Try to match against /some/path/to/file.php?querystuff=whatever,
+    $phpExt = str_replace('.','\.',REQUEST_PHP_EXTENSION); //Convert something like '.php' to '\.php'
+	
+	//Try to match against /some/path/to/file.php?querystuff=whatever,
     //  with the desired match results containing the named group "path"
     //  "path" should contain something like "/some/path/to/file", 
     //  if there was a proper match with our configured php extension (".php" in this case)
