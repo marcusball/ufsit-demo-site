@@ -1,5 +1,5 @@
 <?php
-namespace pirrs;
+namespace ufsit;
 class DiagnosticPage extends PageObject{
 	public function pageTitle(){
 		echo "Diagnostic Information"; 

@@ -1,5 +1,5 @@
 <?php
-namespace pirrs;
+namespace ufsit;
 class Page extends APIObject{
     /*
      * This function gets executed when the server receives a GET request

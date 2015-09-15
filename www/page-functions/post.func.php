@@ -1,5 +1,5 @@
 <?php
-namespace pirrs;
+namespace ufsit;
 class PostPage extends PageObject{
 	public function pageTitle(){
 		echo "This is a website";

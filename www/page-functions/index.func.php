@@ -1,5 +1,5 @@
 <?php
-namespace pirrs;
+namespace ufsit;
 class IndexPage extends PageObject{
 	public function pageTitle(){
 		echo "This is a website";

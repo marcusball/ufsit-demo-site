@@ -1,5 +1,5 @@
 <?php
-namespace pirrs;
+namespace ufsit;
 /** This is the page that will handle all incoming api requests **/
 $startTime = microtime(true);
 require 'require.php'; 
