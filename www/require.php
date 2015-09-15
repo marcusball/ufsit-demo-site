@@ -1,5 +1,5 @@
 <?php
-namespace pirrs;
+namespace ufsit;
 use \PDO;
 
 /** Functions and definitions that will be included for every page **/
