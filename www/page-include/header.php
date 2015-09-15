@@ -22,6 +22,9 @@
                         <li><a href="#">Page 1</a></li>
                         <li><a href="#">Page 2</a></li>
                         <li><a href="#">Page 3</a></li>
+                        <?php if($GlobalPage->user->isLoggedIn()){ ?>
+						<li><a href="/private/?logout" class="button">Log out</a></li>
+						<?php } ?>
                     </ul>
                 </div>
             </div>
