@@ -1,1 +1,0 @@
-These examples are provided as is. They likely won't work without modification; they're provided for reference and for help in rapid prototyping. 
